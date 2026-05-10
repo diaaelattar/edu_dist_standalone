@@ -352,12 +352,7 @@ export default function SupervisorsPage() {
                   {SCHOOL_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="form-label">الحد الأقصى للمدارس</label>
-                <input className="form-input" type="number" min={1} max={10}
-                  value={form.max_assignments}
-                  onChange={e => setForm(f => ({ ...f, max_assignments: Number(e.target.value) }))} />
-              </div>
+
               <div style={{ gridColumn: '1 / -1' }}>
                 <label className="form-label">مدرسته الأصلية (لا يُوزَّع عليها)</label>
                 <select className="form-input" value={form.home_school_id ?? ''}

@@ -188,7 +188,7 @@ export function runDistributionAlgorithm(
 
       for (const sup of supervisors) {
         const load = supervisorLoad.get(sup.id) ?? 0;
-        const maxLoad = sup.max_assignments ?? 1;
+        const maxLoad = 1; // HARD RULE: No supervisor assigned to more than one school
 
         // HARD CONSTRAINT: max load exceeded
         if (load >= maxLoad) {
