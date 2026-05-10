@@ -245,9 +245,9 @@ export async function importGuidanceExcel(formData: FormData) {
         if (!supId) continue;
 
         const w1 = row[2] ? schoolMap.get(String(row[2])) || null : null;
-        const w2 = row[3] ? schoolMap.get(String(row[3])) || null : null;
-        const w3 = row[4] ? schoolMap.get(String(row[4])) || null : null;
-        const w4 = row[5] ? schoolMap.get(String(row[5])) || null : null;
+        const w2 = row[4] ? schoolMap.get(String(row[4])) || null : null;
+        const w3 = row[6] ? schoolMap.get(String(row[6])) || null : null;
+        const w4 = row[8] ? schoolMap.get(String(row[8])) || null : null;
 
         if (w1 || w2 || w3 || w4) {
           wishPayload.push({

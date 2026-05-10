@@ -104,7 +104,7 @@ export async function deleteSchool(id: string): Promise<void> {
 export async function getAllSupervisors(): Promise<Supervisor[]> {
   const { data, error } = await supabase
     .from('supervisors')
-    .select('*, home_school:schools(id, school_name, school_code)')
+    .select('*, home_school:schools!home_school_id(id, school_name, school_code)')
     .eq('is_active', true)
     .order('name');
   if (error) throw error;
@@ -116,7 +116,7 @@ export async function getAllSupervisorsIncludingInactive(): Promise<Supervisor[]
     .from('supervisors')
     .select(`
       *, 
-      home_school:schools(id, school_name, school_code),
+      home_school:schools!home_school_id(id, school_name, school_code),
       annual_schools:supervisor_annual_schools(id, base_school_id, base_school:base_schools(school_name))
     `)
     .order('name');
@@ -197,11 +197,11 @@ export async function getAllWishes(): Promise<SupervisorWish[]> {
     .from('supervisor_wishes')
     .select(`
       *,
-      supervisor:supervisors(id, name, specialty),
-      school_1:wish_1(id, school_name),
-      school_2:wish_2(id, school_name),
-      school_3:wish_3(id, school_name),
-      school_4:wish_4(id, school_name)
+      supervisor:supervisors!supervisor_id(id, name, specialty),
+      school_1:schools!wish_1(id, school_name),
+      school_2:schools!wish_2(id, school_name),
+      school_3:schools!wish_3(id, school_name),
+      school_4:schools!wish_4(id, school_name)
     `);
   if (error) throw error;
   return data ?? [];
@@ -312,8 +312,8 @@ export async function getResultsByRun(runId: string): Promise<DistributionResult
     .from('distribution_results')
     .select(`
       *,
-      supervisor:supervisors(id, name, specialty, stage, school_type),
-      school:schools(id, school_name, school_code, stage, school_type)
+      supervisor:supervisors!supervisor_id(id, name, specialty, stage, school_type),
+      school:schools!assigned_school_id(id, school_name, school_code, stage, school_type)
     `)
     .eq('run_id', runId)
     .order('final_score', { ascending: false });
@@ -458,7 +458,7 @@ export async function getUniqueStages(): Promise<string[]> {
 export async function getTeacherByNID(nid: string): Promise<Teacher | null> {
   const { data, error } = await supabase
     .from('teachers')
-    .select('*, base_school:base_schools(id, school_name, stage, school_type)')
+    .select('*, base_school:base_schools!base_school_id(id, school_name, stage, school_type)')
     .eq('national_id', nid)
     .single();
   if (error && error.code !== 'PGRST116') throw error; // PGRST116 = not found
@@ -469,7 +469,7 @@ export async function upsertTeacher(teacherData: TeacherFormData): Promise<Teach
   const { data, error } = await supabase
     .from('teachers')
     .upsert(teacherData, { onConflict: 'national_id' })
-    .select('*, base_school:base_schools(id, school_name, stage, school_type)')
+    .select('*, base_school:base_schools!base_school_id(id, school_name, stage, school_type)')
     .single();
   if (error) throw error;
   return data;
@@ -478,7 +478,7 @@ export async function upsertTeacher(teacherData: TeacherFormData): Promise<Teach
 export async function getAllTeachers(): Promise<Teacher[]> {
   const { data, error } = await supabase
     .from('teachers')
-    .select('*, base_school:base_schools(id, school_name, stage, school_type)')
+    .select('*, base_school:base_schools!base_school_id(id, school_name, stage, school_type)')
     .eq('is_active', true)
     .order('name');
   if (error) throw error;

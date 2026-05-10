@@ -54,7 +54,7 @@ export async function getGuidanceData() {
   if (supIds.length > 0) {
     const { data: annualData } = await supabase
       .from('supervisor_annual_schools')
-      .select('*, base_school:base_schools(*)')
+      .select('*, base_school:base_schools!base_school_id(*)')
       .in('supervisor_id', supIds);
     if (annualData) annual_schools = annualData;
   }
@@ -67,7 +67,7 @@ export async function getGuidanceData() {
   if (subjects.length > 0) {
     const { data: teachersData } = await supabase
       .from('teachers')
-      .select('*, base_school:base_schools(id, school_name, stage, school_type)')
+      .select('*, base_school:base_schools!base_school_id(id, school_name, stage, school_type)')
       .in('subject', subjects);
     if (teachersData) teachers = teachersData;
     if (teachersData) teachers = teachersData;
