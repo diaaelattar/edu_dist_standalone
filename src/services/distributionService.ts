@@ -142,9 +142,14 @@ export async function setMandatorySupervisor(schoolId: string, supervisorId: str
 
 
 export async function createSupervisor(data: SupervisorFormData): Promise<Supervisor> {
+  const payload = {
+    ...data,
+    national_id: data.national_id?.trim() || null,
+    phone: data.phone?.trim() || null,
+  };
   const { data: sup, error } = await supabase
     .from('supervisors')
-    .insert(data)
+    .upsert(payload, { onConflict: 'national_id' })
     .select()
     .single();
   if (error) throw error;
@@ -152,9 +157,14 @@ export async function createSupervisor(data: SupervisorFormData): Promise<Superv
 }
 
 export async function updateSupervisor(id: string, data: Partial<SupervisorFormData>): Promise<Supervisor> {
+  const payload = {
+    ...data,
+    national_id: data.national_id === undefined ? undefined : (data.national_id?.trim() || null),
+    phone: data.phone === undefined ? undefined : (data.phone?.trim() || null),
+  };
   const { data: sup, error } = await supabase
     .from('supervisors')
-    .update(data)
+    .update(payload)
     .eq('id', id)
     .select()
     .single();

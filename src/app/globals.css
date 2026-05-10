@@ -210,6 +210,11 @@ body {
   transition: border-color 0.15s;
 }
 
+.form-input option {
+  background: #111827; /* Solid dark background for dropdown options */
+  color: #f1f5f9;
+}
+
 .form-input:focus {
   border-color: var(--accent-cyan);
   box-shadow: 0 0 0 3px rgba(34,211,238,0.08);

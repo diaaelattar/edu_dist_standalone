@@ -149,10 +149,10 @@ export async function addSupervisorManually(data: { national_id: string; name: s
   if (!user || user.role !== 'guidance') return { error: 'غير مصرح لك بهذا الإجراء' };
 
   const { error } = await supabase.from('supervisors').upsert({
-    national_id: data.national_id,
+    national_id: data.national_id.trim() || null,
     name: data.name,
     specialty: user.specialty,
-    phone: data.phone || null,
+    phone: data.phone?.trim() || null,
     is_active: true,
   }, { onConflict: 'national_id' });
 
