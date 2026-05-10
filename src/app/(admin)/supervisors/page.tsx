@@ -37,6 +37,7 @@ export default function SupervisorsPage() {
   const [form, setForm] = useState<SupervisorFormData>(EMPTY_FORM);
   const [annualSchools, setAnnualSchools] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [showManualSpec, setShowManualSpec] = useState(false);
   const [specs, setSpecs] = useState<string[]>(['عام']);
   const [stages, setStages] = useState<string[]>([]);
 
@@ -72,8 +73,9 @@ export default function SupervisorsPage() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ ...EMPTY_FORM, specialty: specs[0] || 'عام' });
+    setForm(EMPTY_FORM);
     setAnnualSchools([]);
+    setShowManualSpec(false);
     setShowModal(true);
   };
 
@@ -94,6 +96,7 @@ export default function SupervisorsPage() {
       appointment_type: sup.appointment_type ?? 'حكومي',
     });
     setAnnualSchools(sup.annual_schools?.map(s => s.base_school_id) || []);
+    setShowManualSpec(false);
     setShowModal(true);
   };
 
@@ -198,6 +201,7 @@ export default function SupervisorsPage() {
                 <th>الكادر</th>
                 <th>المرحلة</th>
                 <th>التليفون</th>
+                <th>مدارس المتابعة السنوية</th>
                 <th>الحالة</th>
                 <th>الإجراءات</th>
               </tr>
@@ -210,7 +214,7 @@ export default function SupervisorsPage() {
                   ))}</tr>
                 ))
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={7} style={{ textAlign: 'center', padding: 48, color: '#475569' }}>
+                <tr><td colSpan={8} style={{ textAlign: 'center', padding: 48, color: '#475569' }}>
                   لا توجد نتائج مطابقة
                 </td></tr>
               ) : (
@@ -249,6 +253,23 @@ export default function SupervisorsPage() {
                       ) : (
                         <span style={{ color: '#475569', fontSize: 12 }}>—</span>
                       )}
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 200 }}>
+                        {sup.annual_schools && sup.annual_schools.length > 0 ? (
+                          sup.annual_schools.map(as => (
+                            <span key={as.id} style={{
+                              fontSize: 10, padding: '2px 6px', borderRadius: 4,
+                              background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)',
+                              color: '#94a3b8', whiteSpace: 'nowrap'
+                            }}>
+                              {as.base_school?.school_name}
+                            </span>
+                          ))
+                        ) : (
+                          <span style={{ color: '#475569', fontSize: 11 }}>لا يوجد</span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <button onClick={() => handleToggleActive(sup)} style={{
@@ -311,10 +332,26 @@ export default function SupervisorsPage() {
               </div>
               <div>
                 <label className="form-label">التخصص</label>
-                <select className="form-input" value={form.specialty}
-                  onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}>
+                <select className="form-input" value={showManualSpec ? 'other' : form.specialty}
+                  onChange={e => {
+                    if (e.target.value === 'other') {
+                      setShowManualSpec(true);
+                      setForm(f => ({ ...f, specialty: '' }));
+                    } else {
+                      setShowManualSpec(false);
+                      setForm(f => ({ ...f, specialty: e.target.value }));
+                    }
+                  }}>
                   {specs.map(s => <option key={s} value={s}>{s}</option>)}
+                  <option value="other">+ إضافة تخصص جديد...</option>
                 </select>
+                {showManualSpec && (
+                  <input className="form-input" style={{ marginTop: 8 }}
+                    placeholder="اكتب التخصص الجديد..."
+                    value={form.specialty}
+                    onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}
+                    autoFocus />
+                )}
               </div>
               <div>
                 <label className="form-label">الكادر (الوظيفة)</label>

@@ -240,6 +240,51 @@ export async function deleteWish(supervisor_id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function getCurrentMandatoryAssignments(): Promise<DistributionResult[]> {
+  const { data, error } = await supabase
+    .from('schools')
+    .select(`
+      id,
+      school_name,
+      stage,
+      school_type,
+      mandatory_supervisor_id,
+      supervisor:supervisors!mandatory_supervisor_id(*)
+    `)
+    .not('mandatory_supervisor_id', 'is', null);
+
+  if (error) throw error;
+
+  return (data || []).map(item => ({
+    id: `mandatory-${item.id}`,
+    run_id: 'current-mandatory',
+    supervisor_id: item.mandatory_supervisor_id!,
+    assigned_school_id: item.id,
+    final_score: 9999,
+    rank_achieved: 0,
+    is_forced: true,
+    is_manual_override: false,
+    score_breakdown: {
+      preference_score: 0,
+      specialization_score: 0,
+      stage_score: 0,
+      type_score: 0,
+      workload_penalty: 0,
+      total: 9999,
+      preference_label: 'تكليف إداري'
+    } as any,
+    rejection_reasons: [],
+    created_at: new Date().toISOString(),
+    supervisor: item.supervisor as any,
+    school: {
+      id: item.id,
+      school_name: item.school_name,
+      stage: item.stage,
+      school_type: item.school_type
+    } as any
+  }));
+}
+
 // ────────────────────────────────────────────────────────────
 // DISTRIBUTION RUNS
 // ────────────────────────────────────────────────────────────
@@ -442,13 +487,22 @@ export async function deleteUser(id: string) {
 }
 
 export async function getUniqueSpecialties(): Promise<string[]> {
+  const defaultSpecs = [
+    'عام', 'لغة عربية', 'رياضيات', 'رياضيات لغات', 'علوم', 'علوم لغات',
+    'لغة إنجليزية', 'دراسات اجتماعية', 'تربية دينية', 'تربية فنية',
+    'تربية موسيقية', 'تربية رياضية', 'لغة فرنسية', 'كيمياء', 'فيزياء', 'أحياء',
+    'حاسب آلي', 'اقتصاد منزلي', 'مجال صناعي', 'مجال زراعي', 'تربية نفسية', 'صحافة وإعلام'
+  ];
+  
   const { data, error } = await supabase
     .from('supervisors')
     .select('specialty');
+  
   if (error) throw error;
   
-  const specs = Array.from(new Set((data ?? []).map(s => s.specialty).filter(Boolean))).sort();
-  return specs.length > 0 ? specs : ['عام'];
+  const dbSpecs = data?.map(s => s.specialty).filter(Boolean) || [];
+  const allSpecs = Array.from(new Set([...defaultSpecs, ...dbSpecs]));
+  return allSpecs.sort((a, b) => a.localeCompare(b, 'ar'));
 }
 
 export async function getUniqueStages(): Promise<string[]> {

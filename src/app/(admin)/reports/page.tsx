@@ -7,7 +7,7 @@ import {
   Printer, Mail, Layers, BookOpen, FileSpreadsheet,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { getAllRuns, getResultsByRun, getSettings } from '@/services/distributionService';
+import { getAllRuns, getResultsByRun, getSettings, getCurrentMandatoryAssignments } from '@/services/distributionService';
 import { DistributionRun, DistributionResult } from '@/types/database';
 import { getRankLabel } from '@/lib/distributionAlgorithm';
 import {
@@ -35,14 +35,33 @@ export default function ReportsPage() {
       getAllRuns(),
       getSettings(),
     ]).then(([r, s]) => {
-      setRuns(r);
-      if (r.length > 0) setSelectedRun(r[0].id);
+      const virtualRun: DistributionRun = {
+        id: 'current-mandatory',
+        run_name: '⭐ التكليفات الإجبارية الحالية',
+        academic_year: s.academic_year || '',
+        status: 'draft',
+        algorithm_params: {} as any,
+        total_assigned: 0,
+        total_forced: 0,
+        satisfaction_rate: 0,
+        created_by: '',
+        created_at: new Date().toISOString()
+      };
+      const allRuns = [virtualRun, ...r];
+      setRuns(allRuns);
+      if (allRuns.length > 0) setSelectedRun(allRuns[0].id);
       setCfg(settingsToReport(s));
     }).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    if (selectedRun) getResultsByRun(selectedRun).then(setResults);
+    if (selectedRun) {
+      if (selectedRun === 'current-mandatory') {
+        getCurrentMandatoryAssignments().then(setResults);
+      } else {
+        getResultsByRun(selectedRun).then(setResults);
+      }
+    }
   }, [selectedRun]);
 
   const run = runs.find(r => r.id === selectedRun);

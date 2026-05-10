@@ -20,6 +20,7 @@ export default function UsersPage() {
   });
   const [saving, setSaving] = useState(false);
   const [specs, setSpecs] = useState<string[]>(['عام']);
+  const [showManualSpec, setShowManualSpec] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -49,6 +50,7 @@ export default function UsersPage() {
   const openCreate = () => {
     setEditing(null);
     setForm({ username: '', password_hash: '', role: 'guidance', specialty: specs[0] || 'عام' });
+    setShowManualSpec(false);
     setShowModal(true);
   };
 
@@ -60,6 +62,7 @@ export default function UsersPage() {
       role: user.role,
       specialty: user.specialty || (specs[0] || 'عام')
     });
+    setShowManualSpec(false);
     setShowModal(true);
   };
 
@@ -255,13 +258,33 @@ export default function UsersPage() {
                     <select 
                       className="form-input"
                       style={{ paddingRight: 36 }}
-                      value={form.specialty}
-                      onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}
+                      value={showManualSpec ? 'other' : form.specialty}
+                      onChange={e => {
+                        if (e.target.value === 'other') {
+                          setShowManualSpec(true);
+                          setForm(f => ({ ...f, specialty: '' }));
+                        } else {
+                          setShowManualSpec(false);
+                          setForm(f => ({ ...f, specialty: e.target.value }));
+                        }
+                      }}
                     >
                       {specs.map(s => <option key={s} value={s}>{s}</option>)}
+                      <option value="other">+ إضافة تخصص/توجيه جديد...</option>
                     </select>
                     <BookOpen size={16} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
                   </div>
+                  {showManualSpec && (
+                    <div style={{ marginTop: 8 }}>
+                      <input 
+                        className="form-input"
+                        placeholder="اكتب اسم التوجيه الجديد هنا..."
+                        value={form.specialty}
+                        onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}
+                        autoFocus
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -43,6 +43,19 @@ export default function MandatoryPage() {
     setSaving(schoolId);
     try {
       const supId = drafts[schoolId] || null;
+      
+      // Warning if already assigned elsewhere
+      if (supId) {
+        const otherAssignments = schools.filter(s => s.mandatory_supervisor_id === supId && s.id !== schoolId);
+        if (otherAssignments.length > 0) {
+          const supName = supervisors.find(s => s.id === supId)?.name;
+          toast(`تنبيه: الموجه ${supName} مُكلَّف بالفعل بمدرسة أخرى (${otherAssignments[0].school_name})`, {
+            icon: '⚠️',
+            duration: 4000
+          });
+        }
+      }
+
       await updateSchool(schoolId, { mandatory_supervisor_id: supId ?? undefined });
       // Update local state to reflect saved
       setSchools(prev => prev.map(s => s.id === schoolId
@@ -200,11 +213,14 @@ export default function MandatoryPage() {
                           onChange={e => setDrafts(d => ({ ...d, [school.id]: e.target.value }))}
                         >
                           <option value="">— بدون تكليف إجباري —</option>
-                          {supervisors.map(s => (
-                            <option key={s.id} value={s.id}>
-                              {s.name} — {s.specialty}
-                            </option>
-                          ))}
+                           {supervisors.map(s => {
+                             const count = schools.filter(sch => sch.mandatory_supervisor_id === s.id).length;
+                             return (
+                               <option key={s.id} value={s.id}>
+                                 {s.name} — {s.specialty} {count > 0 ? `(مُكلَّف بـ ${count} مدرسة)` : ''}
+                               </option>
+                             );
+                           })}
                         </select>
                       </td>
                       <td>
