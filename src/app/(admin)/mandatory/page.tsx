@@ -56,10 +56,10 @@ export default function MandatoryPage() {
         }
       }
 
-      await updateSchool(schoolId, { mandatory_supervisor_id: supId ?? undefined });
+      await updateSchool(schoolId, { mandatory_supervisor_id: supId });
       // Update local state to reflect saved
       setSchools(prev => prev.map(s => s.id === schoolId
-        ? { ...s, mandatory_supervisor_id: supId ?? undefined }
+        ? { ...s, mandatory_supervisor_id: supId || undefined }
         : s
       ));
       toast.success('تم حفظ التكليف الإجباري');
@@ -74,7 +74,7 @@ export default function MandatoryPage() {
     setDrafts(d => ({ ...d, [schoolId]: '' }));
     setSaving(schoolId);
     try {
-      await updateSchool(schoolId, { mandatory_supervisor_id: undefined });
+      await updateSchool(schoolId, { mandatory_supervisor_id: null });
       setSchools(prev => prev.map(s => s.id === schoolId
         ? { ...s, mandatory_supervisor_id: undefined }
         : s
@@ -140,6 +140,7 @@ export default function MandatoryPage() {
           <Search size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
           <input className="form-input" style={{ paddingRight: 36 }}
             placeholder="بحث باسم المدرسة أو الكود..."
+            autoComplete="off"
             value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <select className="form-input" style={{ width: 150, flex: '0 0 auto' }}

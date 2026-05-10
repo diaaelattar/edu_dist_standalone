@@ -168,6 +168,7 @@ export default function SupervisorsPage() {
           <Search size={15} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
           <input className="form-input" style={{ paddingRight: 36 }}
             placeholder="بحث بالاسم أو الرقم القومي أو الهاتف..."
+            autoComplete="off"
             value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <select className="form-input" style={{ width: 160, flex: '0 0 auto' }}

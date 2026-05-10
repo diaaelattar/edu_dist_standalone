@@ -29,10 +29,10 @@ export async function createBaseSchool(data: BaseSchoolFormData): Promise<BaseSc
   const { data: school, error } = await supabase
     .from('base_schools')
     .insert(data)
-    .select()
-    .single();
+    .select();
   if (error) throw error;
-  return school;
+  if (!school || school.length === 0) throw new Error('فشل في إنشاء المدرسة الأساسية');
+  return school[0];
 }
 
 export async function updateBaseSchool(id: string, data: Partial<BaseSchoolFormData>): Promise<BaseSchool> {
@@ -40,10 +40,10 @@ export async function updateBaseSchool(id: string, data: Partial<BaseSchoolFormD
     .from('base_schools')
     .update(data)
     .eq('id', id)
-    .select()
-    .single();
+    .select();
   if (error) throw error;
-  return school;
+  if (!school || school.length === 0) throw new Error('المدرسة غير موجودة أو لم يتم التحديث');
+  return school[0];
 }
 
 export async function deleteBaseSchool(id: string): Promise<void> {
@@ -72,21 +72,25 @@ export async function createSchool(data: SchoolFormData): Promise<School> {
   const { data: school, error } = await supabase
     .from('schools')
     .insert(data)
-    .select()
-    .single();
+    .select();
   if (error) throw error;
-  return school;
+  if (!school || school.length === 0) throw new Error('فشل في إنشاء مدرسة اللجنة');
+  return school[0];
 }
 
 export async function updateSchool(id: string, data: Partial<SchoolFormData>): Promise<School> {
   const { data: school, error } = await supabase
     .from('schools')
     .update(data)
-    .eq('id', id)
-    .select()
-    .single();
+    .eq('id', id.trim())
+    .select();
+    
   if (error) throw error;
-  return school;
+  if (!school || school.length === 0) {
+    console.error('Update failed for school ID:', id, 'Payload:', data);
+    throw new Error(`تعذر تحديث بيانات المدرسة (ID: ${id.substring(0,8)}...). تأكد من صلاحيات الوصول.`);
+  }
+  return school[0];
 }
 
 export async function deleteSchool(id: string): Promise<void> {
@@ -150,10 +154,11 @@ export async function createSupervisor(data: SupervisorFormData): Promise<Superv
   const { data: sup, error } = await supabase
     .from('supervisors')
     .upsert(payload, { onConflict: 'national_id' })
-    .select()
-    .single();
+    .select();
+  
   if (error) throw error;
-  return sup;
+  if (!sup || sup.length === 0) throw new Error('فشل في حفظ بيانات الموجه');
+  return sup[0];
 }
 
 export async function updateSupervisor(id: string, data: Partial<SupervisorFormData>): Promise<Supervisor> {
@@ -166,10 +171,11 @@ export async function updateSupervisor(id: string, data: Partial<SupervisorFormD
     .from('supervisors')
     .update(payload)
     .eq('id', id)
-    .select()
-    .single();
+    .select();
+    
   if (error) throw error;
-  return sup;
+  if (!sup || sup.length === 0) throw new Error('الموجه غير موجود أو لم يتم التحديث');
+  return sup[0];
 }
 
 export async function deleteSupervisor(id: string): Promise<void> {
@@ -297,10 +303,10 @@ export async function createDistributionRun(params: {
   const { data, error } = await supabase
     .from('distribution_runs')
     .insert(params)
-    .select()
-    .single();
+    .select();
   if (error) throw error;
-  return data;
+  if (!data || data.length === 0) throw new Error('فشل في إنشاء عملية التوزيع');
+  return data[0];
 }
 
 export async function updateRunStats(
@@ -384,7 +390,7 @@ export async function getLatestResults(): Promise<DistributionResult[]> {
     .eq('status', 'completed')
     .order('created_at', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (!run) return [];
   return getResultsByRun(run.id);
@@ -409,7 +415,7 @@ export async function updateResultSchool(
     .from('distribution_results')
     .select('run_id, assigned_school_id')
     .eq('id', resultId)
-    .single();
+    .maybeSingle();
 
   if (result) {
     await supabase.from('override_logs').insert({
@@ -461,10 +467,11 @@ export async function createUser(data: any) {
   const { data: user, error } = await supabase
     .from('users')
     .insert(data)
-    .select()
-    .single();
+    .select();
+    
   if (error) throw error;
-  return user;
+  if (!user || user.length === 0) throw new Error('فشل في إنشاء المستخدم');
+  return user[0];
 }
 
 export async function updateUser(id: string, data: any) {
@@ -472,10 +479,11 @@ export async function updateUser(id: string, data: any) {
     .from('users')
     .update(data)
     .eq('id', id)
-    .select()
-    .single();
+    .select();
+    
   if (error) throw error;
-  return user;
+  if (!user || user.length === 0) throw new Error('المستخدم غير موجود أو لم يتم التحديث');
+  return user[0];
 }
 
 export async function deleteUser(id: string) {
@@ -524,7 +532,7 @@ export async function getTeacherByNID(nid: string): Promise<Teacher | null> {
     .from('teachers')
     .select('*, base_school:base_schools!base_school_id(id, school_name, stage, school_type)')
     .eq('national_id', nid)
-    .single();
+    .maybeSingle();
   if (error && error.code !== 'PGRST116') throw error; // PGRST116 = not found
   return data ?? null;
 }
@@ -533,10 +541,11 @@ export async function upsertTeacher(teacherData: TeacherFormData): Promise<Teach
   const { data, error } = await supabase
     .from('teachers')
     .upsert(teacherData, { onConflict: 'national_id' })
-    .select('*, base_school:base_schools!base_school_id(id, school_name, stage, school_type)')
-    .single();
+    .select('*, base_school:base_schools!base_school_id(id, school_name, stage, school_type)');
+    
   if (error) throw error;
-  return data;
+  if (!data || data.length === 0) throw new Error('فشل في حفظ بيانات المعلم');
+  return data[0];
 }
 
 export async function getAllTeachers(): Promise<Teacher[]> {

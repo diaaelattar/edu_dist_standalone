@@ -123,6 +123,7 @@ export default function UsersPage() {
             className="form-input" 
             style={{ paddingRight: 36 }}
             placeholder="بحث باسم المستخدم أو التخصص..."
+            autoComplete="off"
             value={search} 
             onChange={e => setSearch(e.target.value)} 
           />
