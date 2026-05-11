@@ -29,7 +29,7 @@ export function settingsToReport(s: Record<string, string>): ReportSettings {
     governorate: s.governorate_name || 'محافظة الجيزة',
     directorate: s.directorate_name || 'إدارة العمرانية التعليمية',
     academicYear: s.academic_year || '2025/2026',
-    semester: 'آخر العام',
+    semester: 'آخر العام - الدور الأول',
     gm_name: s.officials_gm_name || '',
     gm_title: s.officials_gm_title || 'مدير عام الإدارة',
     gm_phone: s.officials_gm_phone || '',
@@ -158,7 +158,7 @@ export const BASE_STYLES = `
   }
 
   /* ─── Instructions ─── */
-  .instructions { margin-right: 16px; font-size: 10.5px; line-height: 1.65; }
+  .instructions { margin-right: 16px; font-size: 13px; line-height: 1.65; }
   .instructions li { margin-bottom: 3px; }
 
   /* ─── Signature row ─── */
@@ -182,11 +182,11 @@ export const BASE_STYLES = `
   /* ─── Managers table ─── */
   .mgr-tbl {
     width: 100%; border-collapse: collapse;
-    border: 1.5px solid #000; margin-top: 4px;
-    font-size: 10.5px;
+    border: 2px solid #000; margin-top: 4px;
+    font-size: 11px;
   }
-  .mgr-tbl th { background: #e5eaf4; padding: 4px 8px; border: 1px solid #ccc; font-weight: 700; }
-  .mgr-tbl td { padding: 4px 8px; border: 1px solid #eee; }
+  .mgr-tbl th { background: #e5eaf4; padding: 4px 8px; border: 2px solid #000; font-weight: 800; color: #000; }
+  .mgr-tbl td { padding: 4px 8px; border: 1px solid #000; color: #000; }
 
   /* ─── Supervisor card in letter ─── */
   .sup-card {
