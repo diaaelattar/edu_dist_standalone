@@ -42,7 +42,7 @@ export default function MandatoryPage() {
   const handleSave = async (schoolId: string) => {
     setSaving(schoolId);
     try {
-      const supId = drafts[schoolId] || null;
+      const supId = drafts[schoolId] || undefined;
       
       // Warning if already assigned elsewhere
       if (supId) {
@@ -74,7 +74,7 @@ export default function MandatoryPage() {
     setDrafts(d => ({ ...d, [schoolId]: '' }));
     setSaving(schoolId);
     try {
-      await updateSchool(schoolId, { mandatory_supervisor_id: null });
+      await updateSchool(schoolId, { mandatory_supervisor_id: undefined });
       setSchools(prev => prev.map(s => s.id === schoolId
         ? { ...s, mandatory_supervisor_id: undefined }
         : s
