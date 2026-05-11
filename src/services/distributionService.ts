@@ -445,9 +445,12 @@ export async function getSettings(): Promise<Record<string, string>> {
 export async function updateSetting(key: string, value: string): Promise<void> {
   const { error } = await supabase
     .from('distribution_settings')
-    .update({ setting_value: value })
-    .eq('setting_key', key);
-  if (error) throw error;
+    .upsert({ setting_key: key, setting_value: value }, { onConflict: 'setting_key' });
+
+  if (error) {
+    console.error('Error updating setting:', error);
+    throw new Error('فشل تحديث الإعداد');
+  }
 }
 
 // ────────────────────────────────────────────────────────────

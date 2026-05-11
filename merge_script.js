@@ -1,4 +1,7 @@
+const fs = require('fs');
+const path = require('path');
 
+const pageContent = `
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -111,12 +114,12 @@ export default function ReportsPage() {
       getRankLabel(r.rank_achieved),
       r.final_score?.toFixed(1) ?? '',
     ]);
-    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
-    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\\n');
+    const blob = new Blob(['\\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `توزيع_${run?.run_name ?? 'نتائج'}.csv`;
+    a.download = \`توزيع_\${run?.run_name ?? 'نتائج'}.csv\`;
     a.click();
   };
 
@@ -134,21 +137,21 @@ export default function ReportsPage() {
       const schoolName = r.school?.school_name ?? '';
       const specialty = r.supervisor?.specialty ?? '';
       const phone = r.supervisor?.phone ?? '';
-      return `
-        ${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', `لمتابعة امتحانات النقل | ${cfg.semester} ${cfg.academicYear}`)}
-        ${renderOfficials(cfg)}
+      return \`
+        \${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', \`لمتابعة امتحانات النقل | \${cfg.semester} \${cfg.academicYear}\`)}
+        \${renderOfficials(cfg)}
         <div class="sup-card">
           <p style="font-weight:700; margin-bottom:6px;">
-            السيد / <span style="border-bottom:1px dashed #000; padding:0 8px;">${supName}</span>
-            &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000; padding:0 8px;">${specialty}</span>
-            ${phone ? `&nbsp;&nbsp; تليفون: <span dir="ltr" style="font-weight:700;">${phone}</span>` : ''}
+            السيد / <span style="border-bottom:1px dashed #000; padding:0 8px;">\${supName}</span>
+            &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000; padding:0 8px;">\${specialty}</span>
+            \${phone ? \`&nbsp;&nbsp; تليفون: <span dir="ltr" style="font-weight:700;">\${phone}</span>\` : ''}
           </p>
-          <p style="text-align:center; font-weight:700; margin:8px 0;">تم تكليفكم لمتابعة امتحانات ${cfg.semester} ${cfg.academicYear} لصفوف النقل بمدرسة:</p>
-          <p style="text-align:center;"><span class="school-box">${schoolName}</span></p>
+          <p style="text-align:center; font-weight:700; margin:8px 0;">تم تكليفكم لمتابعة امتحانات \${cfg.semester} \${cfg.academicYear} لصفوف النقل بمدرسة:</p>
+          <p style="text-align:center;"><span class="school-box">\${schoolName}</span></p>
           <p style="text-align:center; font-size:10px; text-decoration:underline; margin-top:4px;">وحسب مواعيد جدول امتحانات الصفوف الموجودة بالمدرسة</p>
         </div>
         <p style="font-weight:700; margin:6px 0;">ويراعى الالتزام بما يلى:</p>
-        <ol class="instructions" dir="rtl">${INSTRUCTIONS.map(i => `<li>${i}</li>`).join('')}</ol>
+        <ol class="instructions" dir="rtl">\${INSTRUCTIONS.map(i => \`<li>\${i}</li>\`).join('')}</ol>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
           <div style="font-size:11px;">
             <p style="font-weight:700; text-decoration:underline; margin-bottom:5px;">توقيع الموجه</p>
@@ -157,13 +160,13 @@ export default function ReportsPage() {
             <p>رقم التليفون: ...........................</p>
             <p>التوقيع: .................................</p>
           </div>
-          ${renderManagersTable(cfg)}
+          \${renderManagersTable(cfg)}
         </div>
-        ${renderSignatures(cfg)}
-      `;
+        \${renderSignatures(cfg)}
+      \`;
     });
     try {
-      await generatePDF(wrapPages(pages), `خطابات_تكليف_${run?.run_name ?? 'التوزيع'}.pdf`, setPdfProgress);
+      await generatePDF(wrapPages(pages), \`خطابات_تكليف_\${run?.run_name ?? 'التوزيع'}.pdf\`, setPdfProgress);
       toast.success('تم إنشاء ملف PDF بنجاح');
     } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
   };
@@ -191,16 +194,16 @@ export default function ReportsPage() {
       .sort((a, b) => a[0].localeCompare(b[0], 'ar'))
       .map(([spec, items]) => {
         items.sort((a, b) => (a.school?.school_name ?? '').localeCompare(b.school?.school_name ?? '', 'ar'));
-        const rows = items.map((r, i) => `
+        const rows = items.map((r, i) => \`
           <tr>
-            <td>${i + 1}</td>
-            <td style="text-align:right; font-weight:600;">${r.school?.school_name ?? ''}</td>
-            <td style="font-size:10px; color:#555;">${r.school?.school_type ?? ''}</td>
-            <td>${r.supervisor?.name ?? ''}</td>
-            <td dir="ltr">${r.supervisor?.phone ?? '—'}</td>
-          </tr>`);
-        return `
-          ${renderHeader(cfg, `كشف الموجهين — توجيه ${spec}`, `${cfg.semester} ${cfg.academicYear}`)}
+            <td>\${i + 1}</td>
+            <td style="text-align:right; font-weight:600;">\${r.school?.school_name ?? ''}</td>
+            <td style="font-size:10px; color:#555;">\${r.school?.school_type ?? ''}</td>
+            <td>\${r.supervisor?.name ?? ''}</td>
+            <td dir="ltr">\${r.supervisor?.phone ?? '—'}</td>
+          </tr>\`);
+        return \`
+          \${renderHeader(cfg, \`كشف الموجهين — توجيه \${spec}\`, \`\${cfg.semester} \${cfg.academicYear}\`)}
           <table class="data-tbl">
             <thead><tr>
               <th style="width:35px;">م</th>
@@ -209,13 +212,13 @@ export default function ReportsPage() {
               <th style="width:180px;">اسم الموجه</th>
               <th style="width:110px;">التليفون</th>
             </tr></thead>
-            <tbody>${rows.join('')}</tbody>
+            <tbody>\${rows.join('')}</tbody>
           </table>
-          ${renderGMSignature(cfg)}
-        `;
+          \${renderGMSignature(cfg)}
+        \`;
       });
     try {
-      await generatePDF(wrapPages(pages), `كشوف_التوجيه_${run?.run_name ?? ''}.pdf`, setPdfProgress);
+      await generatePDF(wrapPages(pages), \`كشوف_التوجيه_\${run?.run_name ?? ''}.pdf\`, setPdfProgress);
       toast.success('تم إنشاء PDF بنجاح');
     } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
   };
@@ -239,11 +242,11 @@ export default function ReportsPage() {
 
       let groupKey: string;
       if (isLanguage) {
-        groupKey = `${stage} — لغات`;
+        groupKey = \`\${stage} — لغات\`;
       } else if (isOfficial) {
-        groupKey = `${stage} — حكومي / رسمي`;
+        groupKey = \`\${stage} — حكومي / رسمي\`;
       } else {
-        groupKey = `${stage} — خاص / دولي`;
+        groupKey = \`\${stage} — خاص / دولي\`;
       }
 
       if (!groupMap.has(groupKey)) groupMap.set(groupKey, []);
@@ -262,20 +265,20 @@ export default function ReportsPage() {
         (a.school?.school_name ?? '').localeCompare(b.school?.school_name ?? '', 'ar')
       );
 
-      const rows = items.map((r, i) => `
+      const rows = items.map((r, i) => \`
         <tr>
-          <td>${i + 1}</td>
-          <td style="text-align:right; font-weight:600;">${r.school?.school_name ?? ''}</td>
-          <td style="font-size:10px; color:#555;">${r.school?.school_type ?? ''}</td>
-          <td>${r.supervisor?.name ?? ''}</td>
-          <td>${r.supervisor?.specialty ?? ''}</td>
-          <td dir="ltr">${r.supervisor?.phone ?? '—'}</td>
-        </tr>`).join('');
+          <td>\${i + 1}</td>
+          <td style="text-align:right; font-weight:600;">\${r.school?.school_name ?? ''}</td>
+          <td style="font-size:10px; color:#555;">\${r.school?.school_type ?? ''}</td>
+          <td>\${r.supervisor?.name ?? ''}</td>
+          <td>\${r.supervisor?.specialty ?? ''}</td>
+          <td dir="ltr">\${r.supervisor?.phone ?? '—'}</td>
+        </tr>\`).join('');
 
-      return `
-        ${renderHeader(cfg, `كشف توزيع الموجهين — ${groupLabel}`, `${cfg.semester} ${cfg.academicYear}`)}
+      return \`
+        \${renderHeader(cfg, \`كشف توزيع الموجهين — \${groupLabel}\`, \`\${cfg.semester} \${cfg.academicYear}\`)}
         <div style="margin:6px 0; font-size:11px; color:#444; border:1px solid #ccc; padding:4px 10px; border-radius:3px; display:inline-block;">
-          إجمالي المدارس: <strong>${items.length}</strong>
+          إجمالي المدارس: <strong>\${items.length}</strong>
         </div>
         <table class="data-tbl">
           <thead><tr>
@@ -286,15 +289,15 @@ export default function ReportsPage() {
             <th style="width:90px;">التخصص</th>
             <th style="width:110px;">التليفون</th>
           </tr></thead>
-          <tbody>${rows}</tbody>
+          <tbody>\${rows}</tbody>
         </table>
-        ${renderGMSignature(cfg)}
-      `;
+        \${renderGMSignature(cfg)}
+      \`;
     });
 
     try {
-      await generatePDF(wrapPages(pages), `كشوف_المراحل_${run?.run_name ?? ''}.pdf`, setPdfProgress);
-      toast.success(`تم إنشاء كشوف ${sortedGroups.length} مجموعة بنجاح`);
+      await generatePDF(wrapPages(pages), \`كشوف_المراحل_\${run?.run_name ?? ''}.pdf\`, setPdfProgress);
+      toast.success(\`تم إنشاء كشوف \${sortedGroups.length} مجموعة بنجاح\`);
     } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
   };
 
@@ -302,26 +305,26 @@ export default function ReportsPage() {
   // ═══════ Blank Letter ═══════
   const printBlankLetter = async () => {
     if (!cfg) return toast.error('لم يتم تحميل الإعدادات');
-    const page = `
-      ${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', `لمتابعة امتحانات النقل | ${cfg.semester} ${cfg.academicYear}`)}
-      ${renderOfficials(cfg)}
+    const page = \`
+      \${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', \`لمتابعة امتحانات النقل | \${cfg.semester} \${cfg.academicYear}\`)}
+      \${renderOfficials(cfg)}
       <div class="sup-card">
         <p style="font-weight:700; margin-bottom:6px;">السيد / <span style="border-bottom:1px dashed #000; padding:0 40px;"></span> &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000; padding:0 40px;"></span></p>
-        <p style="text-align:center; font-weight:700; margin:8px 0;">تم تكليفكم لمتابعة امتحانات ${cfg.semester} ${cfg.academicYear} لصفوف النقل بمدرسة:</p>
+        <p style="text-align:center; font-weight:700; margin:8px 0;">تم تكليفكم لمتابعة امتحانات \${cfg.semester} \${cfg.academicYear} لصفوف النقل بمدرسة:</p>
         <p style="text-align:center;"><span class="school-box" style="min-width:200px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
       </div>
       <p style="font-weight:700; margin:6px 0;">ويراعى الالتزام بما يلى:</p>
-      <ol class="instructions">${INSTRUCTIONS.map(i => `<li>${i}</li>`).join('')}</ol>
+      <ol class="instructions">\${INSTRUCTIONS.map(i => \`<li>\${i}</li>\`).join('')}</ol>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
         <div style="font-size:11px;">
           <p style="font-weight:700; text-decoration:underline;">توقيع الموجه</p>
           <p>الاسم: .................................</p><p>الوظيفة: ................................</p>
           <p>رقم التليفون: ...........................</p><p>التوقيع: .................................</p>
         </div>
-        ${renderManagersTable(cfg)}
+        \${renderManagersTable(cfg)}
       </div>
-      ${renderSignatures(cfg)}
-    `;
+      \${renderSignatures(cfg)}
+    \`;
     try {
       await generatePDF(wrapPages([page]), 'خطاب_تكليف_فارغ.pdf', setPdfProgress);
       toast.success('تم إنشاء PDF بنجاح');
@@ -347,24 +350,24 @@ export default function ReportsPage() {
     const items = unassigned;
     if (items.length === 0) return toast.error('لا يوجد موجهون غير مكلفون');
     const today = new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
-    const rows = items.map((s: any, i: number) => `
+    const rows = items.map((s: any, i: number) => \`
       <tr>
-        <td>${i + 1}</td>
-        <td style="text-align:right;font-weight:700;">${s.name}</td>
-        <td>${s.specialty}</td>
-        <td>${s.stage ?? '—'}</td>
-        <td>${s.grade ?? '—'}</td>
-        <td dir="ltr">${s.phone ?? '—'}</td>
-        <td>${s.national_id ?? '—'}</td>
-      </tr>`).join('');
+        <td>\${i + 1}</td>
+        <td style="text-align:right;font-weight:700;">\${s.name}</td>
+        <td>\${s.specialty}</td>
+        <td>\${s.stage ?? '—'}</td>
+        <td>\${s.grade ?? '—'}</td>
+        <td dir="ltr">\${s.phone ?? '—'}</td>
+        <td>\${s.national_id ?? '—'}</td>
+      </tr>\`).join('');
 
-    const page = `
-      ${renderHeader(cfg, 'كشف الموجهين غير المكلفين', 'المتاحون للاستعانة بهم في توزيع الامتحانات')}
+    const page = \`
+      \${renderHeader(cfg, 'كشف الموجهين غير المكلفين', 'المتاحون للاستعانة بهم في توزيع الامتحانات')}
       <div style="margin:6px 0;display:flex;gap:16px;font-size:11px;border:1px solid #ccc;padding:6px 12px;border-radius:4px;background:#f9fbff;">
-        <span>إجمالي الموجهين النشطين: <strong>${extraData.totalSupervisors}</strong></span>
-        <span>المكلفون حالياً: <strong>${extraData.totalSupervisors - extraData.unassignedSupervisors.length}</strong></span>
-        <span style="color:#c00;font-weight:700;">غير المكلفين: <strong>${extraData.unassignedSupervisors.length}</strong></span>
-        ${filterSpec ? `<span>التخصص: <strong>${filterSpec}</strong></span>` : ''}
+        <span>إجمالي الموجهين النشطين: <strong>\${extraData.totalSupervisors}</strong></span>
+        <span>المكلفون حالياً: <strong>\${extraData.totalSupervisors - extraData.unassignedSupervisors.length}</strong></span>
+        <span style="color:#c00;font-weight:700;">غير المكلفين: <strong>\${extraData.unassignedSupervisors.length}</strong></span>
+        \${filterSpec ? \`<span>التخصص: <strong>\${filterSpec}</strong></span>\` : ''}
       </div>
       <table class="data-tbl">
         <thead><tr>
@@ -376,12 +379,12 @@ export default function ReportsPage() {
           <th style="width:110px;">التليفون</th>
           <th style="width:120px;">الرقم القومي</th>
         </tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody>\${rows}</tbody>
       </table>
-      ${renderGMSignature(cfg)}
-    `;
+      \${renderGMSignature(cfg)}
+    \`;
     try {
-      await generatePDF(wrapPages([page]), `كشف_الموجهين_غير_المكلفين_${today}.pdf`, setPdfProgress);
+      await generatePDF(wrapPages([page]), \`كشف_الموجهين_غير_المكلفين_\${today}.pdf\`, setPdfProgress);
       toast.success('تم إنشاء PDF بنجاح');
     } catch { toast.error('خطأ في PDF'); setPdfProgress(''); }
   };
@@ -400,22 +403,22 @@ export default function ReportsPage() {
     });
 
     const pages = Object.entries(groups).map(([stage, list]) => {
-      const rows = (list as any[]).map((s: any, i: number) => `
+      const rows = (list as any[]).map((s: any, i: number) => \`
         <tr>
-          <td>${i + 1}</td>
-          <td style="text-align:right;font-weight:700;">${s.school_name}</td>
-          <td>${s.school_code ?? '—'}</td>
-          <td>${s.school_type}</td>
-          <td>${s.specialization ?? '—'}</td>
-          <td>${s.needs_count}</td>
-          <td>${s.address ?? '—'}</td>
-        </tr>`).join('');
-      return `
-        ${renderHeader(cfg, `كشف المدارس بدون موجه مقيم — ${stage}`, 'المدارس التي لم يُخصص لها موجه مقيم حتى الآن')}
+          <td>\${i + 1}</td>
+          <td style="text-align:right;font-weight:700;">\${s.school_name}</td>
+          <td>\${s.school_code ?? '—'}</td>
+          <td>\${s.school_type}</td>
+          <td>\${s.specialization ?? '—'}</td>
+          <td>\${s.needs_count}</td>
+          <td>\${s.address ?? '—'}</td>
+        </tr>\`).join('');
+      return \`
+        \${renderHeader(cfg, \`كشف المدارس بدون موجه مقيم — \${stage}\`, 'المدارس التي لم يُخصص لها موجه مقيم حتى الآن')}
         <div style="margin:6px 0;display:flex;gap:16px;font-size:11px;border:1px solid #ccc;padding:6px 12px;border-radius:4px;background:#fff8f8;">
-          <span>المرحلة: <strong>${stage}</strong></span>
-          <span style="color:#c00;font-weight:700;">عدد المدارس: <strong>${list.length}</strong></span>
-          ${filterStage ? '' : `<span>الإجمالي الكلي: <strong>${extraData.schoolsWithoutSupervisor.length}</strong></span>`}
+          <span>المرحلة: <strong>\${stage}</strong></span>
+          <span style="color:#c00;font-weight:700;">عدد المدارس: <strong>\${list.length}</strong></span>
+          \${filterStage ? '' : \`<span>الإجمالي الكلي: <strong>\${extraData.schoolsWithoutSupervisor.length}</strong></span>\`}
         </div>
         <table class="data-tbl">
           <thead><tr>
@@ -427,14 +430,14 @@ export default function ReportsPage() {
             <th style="width:55px;">العدد</th>
             <th>العنوان</th>
           </tr></thead>
-          <tbody>${rows}</tbody>
+          <tbody>\${rows}</tbody>
         </table>
-        ${renderGMSignature(cfg)}
-      `;
+        \${renderGMSignature(cfg)}
+      \`;
     });
     try {
-      await generatePDF(wrapPages(pages), `كشف_المدارس_بدون_موجه_${today}.pdf`, setPdfProgress);
-      toast.success(`تم إنشاء ${pages.length} صفحة بنجاح`);
+      await generatePDF(wrapPages(pages), \`كشف_المدارس_بدون_موجه_\${today}.pdf\`, setPdfProgress);
+      toast.success(\`تم إنشاء \${pages.length} صفحة بنجاح\`);
     } catch { toast.error('خطأ في PDF'); setPdfProgress(''); }
   };
 
@@ -442,21 +445,21 @@ export default function ReportsPage() {
     if (!cfg) return;
     const items = unassigned;
     if (items.length === 0) return toast.error('لا يوجد موجهون لطباعة خطاباتهم');
-    const pages = items.map((s: any) => `
-      ${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', `لمتابعة امتحانات النقل | ${cfg.semester} ${cfg.academicYear}`)}
-      ${renderOfficials(cfg)}
+    const pages = items.map((s: any) => \`
+      \${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', \`لمتابعة امتحانات النقل | \${cfg.semester} \${cfg.academicYear}\`)}
+      \${renderOfficials(cfg)}
       <div class="sup-card">
         <p style="font-weight:700;margin-bottom:6px;">
-          السيد / <span style="border-bottom:1px dashed #000;padding:0 8px;">${s.name}</span>
-          &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000;padding:0 8px;">${s.specialty}</span>
-          ${s.phone ? `&nbsp;&nbsp; تليفون: <span dir="ltr" style="font-weight:700;">${s.phone}</span>` : ''}
+          السيد / <span style="border-bottom:1px dashed #000;padding:0 8px;">\${s.name}</span>
+          &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000;padding:0 8px;">\${s.specialty}</span>
+          \${s.phone ? \`&nbsp;&nbsp; تليفون: <span dir="ltr" style="font-weight:700;">\${s.phone}</span>\` : ''}
         </p>
-        <p style="text-align:center;font-weight:700;margin:8px 0;">تم تكليفكم لمتابعة امتحانات ${cfg.semester} ${cfg.academicYear} لصفوف النقل بمدرسة:</p>
+        <p style="text-align:center;font-weight:700;margin:8px 0;">تم تكليفكم لمتابعة امتحانات \${cfg.semester} \${cfg.academicYear} لصفوف النقل بمدرسة:</p>
         <p style="text-align:center;"><span class="school-box" style="min-width:220px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
         <p style="text-align:center;font-size:10px;text-decoration:underline;margin-top:4px;">وحسب مواعيد جدول امتحانات الصفوف الموجودة بالمدرسة</p>
       </div>
       <p style="font-weight:700;margin:6px 0;">ويراعى الالتزام بما يلى:</p>
-      <ol class="instructions" dir="rtl">${INSTRUCTIONS.map(i => `<li>${i}</li>`).join('')}</ol>
+      <ol class="instructions" dir="rtl">\${INSTRUCTIONS.map(i => \`<li>\${i}</li>\`).join('')}</ol>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
         <div style="font-size:11px;">
           <p style="font-weight:700;text-decoration:underline;margin-bottom:5px;">توقيع الموجه</p>
@@ -465,12 +468,12 @@ export default function ReportsPage() {
           <p>رقم التليفون: .............................</p>
           <p>التوقيع: .................................</p>
         </div>
-        ${renderManagersTable(cfg)}
+        \${renderManagersTable(cfg)}
       </div>
-      ${renderSignatures(cfg)}
-    `);
+      \${renderSignatures(cfg)}
+    \`);
     try {
-      await generatePDF(wrapPages(pages), `خطابات_تكليف_الموجهين_المتاحين.pdf`, setPdfProgress);
+      await generatePDF(wrapPages(pages), \`خطابات_تكليف_الموجهين_المتاحين.pdf\`, setPdfProgress);
       toast.success('تم إنشاء الخطابات بنجاح');
     } catch { toast.error('خطأ في PDF'); setPdfProgress(''); }
   };
@@ -596,7 +599,7 @@ export default function ReportsPage() {
                     </div>
                     
                     <button className="btn-primary" onClick={printIndividualLetters} disabled={!!pdfProgress} style={{ width: '100%', marginTop: 12, padding: '8px 16px', fontSize: 13 }}>
-                      <Printer size={14} /> طباعة {selectedSups.length > 0 ? `(${selectedSups.length} محددين)` : '(الكل)'}
+                      <Printer size={14} /> طباعة {selectedSups.length > 0 ? \`(\${selectedSups.length} محددين)\` : '(الكل)'}
                     </button>
                   </div>
 
@@ -671,7 +674,7 @@ export default function ReportsPage() {
                             <span style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.count}</span>
                           </div>
                           <div style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${(item.count / maxCount) * 100}%`, background: item.color, borderRadius: 4, transition: 'width 0.6s ease' }} />
+                            <div style={{ height: '100%', width: \`\${(item.count / maxCount) * 100}%\`, background: item.color, borderRadius: 4, transition: 'width 0.6s ease' }} />
                           </div>
                         </div>
                       ))}
@@ -722,12 +725,12 @@ export default function ReportsPage() {
                             <td style={{ color: '#94a3b8', fontSize: 13 }}>{res.supervisor?.stage}</td>
                             <td style={{ color: '#94a3b8', fontSize: 13 }}>{res.school?.school_name}</td>
                             <td>
-                              <span className={`badge ${
+                              <span className={\`badge \${
                                 res.rank_achieved === 1 ? 'badge-green' :
                                 res.rank_achieved === 2 ? 'badge-cyan' :
                                 res.rank_achieved === 3 ? 'badge-purple' :
                                 res.rank_achieved === 4 ? 'badge-blue' : 'badge-amber'
-                              }`}>{getRankLabel(res.rank_achieved)}</span>
+                              }\`}>{getRankLabel(res.rank_achieved)}</span>
                             </td>
                             <td style={{ color: '#64748b', fontSize: 13, fontWeight: 600 }}>
                               {res.final_score?.toFixed(1)}
@@ -753,7 +756,7 @@ export default function ReportsPage() {
                   { label: 'المكلفون حالياً', value: extraData.totalSupervisors - extraData.unassignedSupervisors.length, color: '#34d399', bg: 'rgba(52,211,153,0.1)' },
                   { label: 'غير المكلفين / المتاحون', value: extraData.unassignedSupervisors.length, color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
                 ].map((c, i) => (
-                  <div key={i} style={{ background: c.bg, border: `1px solid ${c.color}33`, borderRadius: 10, padding: '14px 16px' }}>
+                  <div key={i} style={{ background: c.bg, border: \`1px solid \${c.color}33\`, borderRadius: 10, padding: '14px 16px' }}>
                     <p style={{ margin: 0, fontSize: 11, color: '#94a3b8' }}>{c.label}</p>
                     <h3 style={{ margin: '4px 0 0', fontSize: 26, fontWeight: 800, color: c.color }}>{c.value}</h3>
                   </div>
@@ -819,7 +822,7 @@ export default function ReportsPage() {
                   { label: 'مدارس لها موجه مقيم', value: extraData.totalSchools - extraData.schoolsWithoutSupervisor.length, color: '#34d399', bg: 'rgba(52,211,153,0.1)' },
                   { label: 'مدارس بدون موجه مقيم', value: extraData.schoolsWithoutSupervisor.length, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
                 ].map((c, i) => (
-                  <div key={i} style={{ background: c.bg, border: `1px solid ${c.color}33`, borderRadius: 10, padding: '14px 16px' }}>
+                  <div key={i} style={{ background: c.bg, border: \`1px solid \${c.color}33\`, borderRadius: 10, padding: '14px 16px' }}>
                     <p style={{ margin: 0, fontSize: 11, color: '#94a3b8' }}>{c.label}</p>
                     <h3 style={{ margin: '4px 0 0', fontSize: 26, fontWeight: 800, color: c.color }}>{c.value}</h3>
                   </div>
@@ -875,3 +878,6 @@ export default function ReportsPage() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync(path.join(__dirname, 'src', 'app', '(admin)', 'reports', 'page.tsx'), pageContent);
