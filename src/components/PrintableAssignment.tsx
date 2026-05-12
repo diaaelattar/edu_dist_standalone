@@ -212,46 +212,9 @@ export default function PrintableAssignment({ results, stats, runName }: Props) 
         </table>
 
         {/* ===== SIGNATURES ===== */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginTop: 30 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 40, paddingLeft: 60 }}>
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontWeight: 800, fontSize: 12, textDecoration: 'underline', marginBottom: 6 }}>
-              {settings.officials_gm_title || 'مدير عام الإدارة'}
-            </p>
-            <p style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 12 }}>
-              {settings.officials_gm_name || '(..........................)'}
-            </p>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontWeight: 800, fontSize: 12, textDecoration: 'underline', marginBottom: 6 }}>
-              {settings.officials_deputy_title || 'وكيل الإدارة'}
-            </p>
-            <p style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 12 }}>
-              {settings.officials_deputy_name || '(..........................)'}
-            </p>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontWeight: 800, fontSize: 12, textDecoration: 'underline', marginBottom: 6 }}>
-              مدير التعليم الثانوي
-            </p>
-            <p style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 12 }}>
-              {settings.officials_mgr_sec || '(..........................)'}
-            </p>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontWeight: 800, fontSize: 12, textDecoration: 'underline', marginBottom: 6 }}>
-              مدير التعليم الإعدادي
-            </p>
-            <p style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 12 }}>
-              {settings.officials_mgr_prep || '(..........................)'}
-            </p>
-          </div>
-          <div style={{ textAlign: 'center', gridColumn: '2 / 4', marginTop: 16 }}>
-            <p style={{ fontWeight: 800, fontSize: 12, textDecoration: 'underline', marginBottom: 6 }}>
-              مدير التعليم الابتدائي
-            </p>
-            <p style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 12 }}>
-              {settings.officials_mgr_primary || '(..........................)'}
-            </p>
+            <p style={{ fontWeight: 900, fontSize: 18 }}>يعتمد،،</p>
           </div>
         </div>
 

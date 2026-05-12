@@ -307,21 +307,9 @@ export function renderManagersTable(cfg: ReportSettings): string {
 // ─── Signatures row ───────────────────────────────────────────────────────
 export function renderSignatures(cfg: ReportSettings): string {
   return `
-    <div class="sig-row">
+    <div class="sig-row" style="justify-content: flex-end; margin-top: 30px; padding-left: 50px;">
       <div class="sig-block">
-        <div class="sig-title">مديري المراحل</div>
-        <div class="sig-line"></div>
-      </div>
-      <div class="sig-block">
-        <div class="sig-title">${cfg.deputy_title}</div>
-        <div class="sig-name">${cfg.deputy_name}</div>
-        <div class="sig-line"></div>
-      </div>
-      <div class="sig-block">
-        <div class="sig-title" style="font-weight:900;">يعتمد،،</div>
-        <div class="sig-title">${cfg.gm_title}</div>
-        <div class="sig-name">${cfg.gm_name}</div>
-        <div class="sig-line"></div>
+        <div class="sig-title" style="font-weight:900; font-size: 16px;">يعتمد،،</div>
       </div>
     </div>
   `;
@@ -330,18 +318,15 @@ export function renderSignatures(cfg: ReportSettings): string {
 // ─── GM signature block ───────────────────────────────────────────────────
 export function renderGMSignature(cfg: ReportSettings): string {
   return `
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-top:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:20px; margin-top:18px;">
       <div class="notes-box" style="flex:1;">
         <p><strong>ملاحظات هامة:</strong></p>
         <p>• يُرجى الالتزام التام بالمدرسة المحددة.</p>
         <p>• التواصل الفوري مع غرفة العمليات عند أي طارئ.</p>
         <p>• الحضور قبل بدء الامتحان بوقت كافٍ.</p>
       </div>
-      <div class="sig-block" style="min-width:190px;">
-        <div class="sig-title">يعتمد،،</div>
-        <div style="font-weight:800; font-size:12px; margin:4px 0;">${cfg.gm_title}</div>
-        <div class="sig-name">${cfg.gm_name}</div>
-        <div class="sig-line">التوقيع</div>
+      <div class="sig-block" style="min-width:190px; text-align: center;">
+        <div class="sig-title" style="font-weight:900; font-size: 16px;">يعتمد،،</div>
       </div>
     </div>
   `;
