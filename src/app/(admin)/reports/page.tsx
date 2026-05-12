@@ -209,54 +209,70 @@ export default function ReportsPage() {
         </tr>`).join('');
 
       return `
-        ${renderHeader(cfg, 'توزيع تكليف السادة الموجهين لمتابعة أعمال امتحان النقل', `آخر العام الدراسي 2025 / 2026`)}
-        
-        <div style="margin: 12px 0 8px; font-weight: 800; font-size: 15px; border-bottom: 2px solid #1a3a6e; padding-bottom: 5px; color: #1a3a6e;">
-          السيد موجه أول / توجيه ${spec}
-        </div>
-        
-        <p style="margin: 10px 0; font-weight: 700; line-height: 1.6; font-size: 13.5px;">
-          مرفق كشف تكليفات السادة أعضاء القسم التابع لكم لمتابعة أعمال امتحانات : آخر العام الدراسي 2025 / 2026؛
-        </p>
-        <p style="margin: 5px 0; font-weight: 700; font-size: 13px; color: #444;">
-          الرجا موافاتنا بكل من لم يرد بهذا الكشف من العاملين بالقسم لديكم.
-        </p>
-        <p style="margin: 8px 0 15px; font-weight: 800; text-decoration: underline; font-size: 14px; text-align: center;">
-          هذا للعلم واتخاذ اللازم
-        </p>
-
-        <h4 style="margin: 15px 0 6px; font-size: 13px; color: #1a3a6e; border-right: 4px solid #1a3a6e; padding-right: 8px;">أولاً: السادة الموجهون المكلفون:</h4>
-        <table class="data-tbl">
-          <thead><tr>
-            <th style="width:35px;">م</th>
-            <th>اسم المدرسة</th>
-            <th style="width:80px;">النوع</th>
-            <th style="width:200px;">اسم الموجه</th>
-            <th style="width:110px;">التليفون</th>
-          </tr></thead>
+        <table style="width: 100%; border: none; border-collapse: collapse;">
           <tbody>
-            ${assignedRows || '<tr><td colspan="5" style="text-align:center; padding:15px; color:#666;">لا يوجد موجهون مكلفون حالياً في هذا التخصص</td></tr>'}
-          </tbody>
-        </table>
+            <tr>
+              <td style="border: none; padding: 0;">
+                ${renderHeader(cfg, 'توزيع تكليف السادة الموجهين لمتابعة أعمال امتحان النقل', `آخر العام الدراسي 2025 / 2026`)}
+                
+                <div style="margin: 12px 0 8px; font-weight: 800; font-size: 15px; border-bottom: 2px solid #1a3a6e; padding-bottom: 5px; color: #1a3a6e;">
+                  السيد موجه أول / توجيه ${spec}
+                </div>
+                
+                <p style="margin: 10px 0; font-weight: 700; line-height: 1.6; font-size: 13.5px;">
+                  مرفق كشف تكليفات السادة أعضاء القسم التابع لكم لمتابعة أعمال امتحانات : آخر العام الدراسي 2025 / 2026؛
+                </p>
+                <p style="margin: 5px 0; font-weight: 700; font-size: 13px; color: #444;">
+                  الرجا موافاتنا بكل من لم يرد بهذا الكشف من العاملين بالقسم لديكم.
+                </p>
+                <p style="margin: 8px 0 15px; font-weight: 800; text-decoration: underline; font-size: 14px; text-align: center;">
+                  هذا للعلم واتخاذ اللازم
+                </p>
 
-        ${unassigned.length > 0 ? `
-          <h4 style="margin: 20px 0 6px; font-size: 13px; color: #c00; border-right: 4px solid #c00; padding-right: 8px;">ثانياً: السادة الموجهون غير المكلفين (المتاحون):</h4>
-          <table class="data-tbl">
-            <thead><tr>
-              <th style="width:35px;">م</th>
-              <th>اسم الموجه</th>
-              <th style="width:120px;">الحالة</th>
-              <th style="width:110px;">التليفون</th>
-            </tr></thead>
-            <tbody>${unassignedRows}</tbody>
-          </table>
-        ` : ''}
-        <div class="footer-space"></div>
+                <h4 style="margin: 15px 0 6px; font-size: 13px; color: #1a3a6e; border-right: 4px solid #1a3a6e; padding-right: 8px;">أولاً: السادة الموجهون المكلفون:</h4>
+                <table class="data-tbl">
+                  <thead><tr>
+                    <th style="width:35px;">م</th>
+                    <th>اسم المدرسة</th>
+                    <th style="width:80px;">النوع</th>
+                    <th style="width:200px;">اسم الموجه</th>
+                    <th style="width:110px;">التليفون</th>
+                  </tr></thead>
+                  <tbody>
+                    ${assignedRows || '<tr><td colspan="5" style="text-align:center; padding:15px; color:#666;">لا يوجد موجهون مكلفون حالياً في هذا التخصص</td></tr>'}
+                  </tbody>
+                </table>
+
+                ${unassigned.length > 0 ? `
+                  <h4 style="margin: 20px 0 6px; font-size: 13px; color: #c00; border-right: 4px solid #c00; padding-right: 8px;">ثانياً: السادة الموجهون غير المكلفين (المتاحون):</h4>
+                  <table class="data-tbl">
+                    <thead><tr>
+                      <th style="width:35px;">م</th>
+                      <th>اسم الموجه</th>
+                      <th style="width:120px;">الحالة</th>
+                      <th style="width:110px;">التليفون</th>
+                    </tr></thead>
+                    <tbody>${unassignedRows}</tbody>
+                  </table>
+                ` : ''}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td style="border: none; padding: 0;">
+                <div class="sig-container">
+                  ${renderSignatures(cfg)}
+                </div>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       `;
     }).filter(Boolean) as string[];
 
     try {
-      await generatePDF(wrapPages(pages), `كشوف_التوجيهات_${cfg.semester}.pdf`, setPdfProgress, 'A4 portrait', footerHtml);
+      await generatePDF(wrapPages(pages), `كشوف_التوجيهات_${cfg.semester}.pdf`, setPdfProgress, 'A4 portrait');
       toast.success('تم إنشاء الكشوف بنجاح');
     } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
   };
@@ -314,22 +330,38 @@ export default function ReportsPage() {
         </tr>`).join('');
 
       return `
-        ${renderHeader(cfg, `كشف توزيع الموجهين — ${groupLabel}`, `${cfg.semester} ${cfg.academicYear}`)}
-        <div style="margin:6px 0; font-size:11px; color:#444; border:1px solid #ccc; padding:4px 10px; border-radius:3px; display:inline-block;">
-          إجمالي المدارس: <strong>${items.length}</strong>
-        </div>
-        <table class="data-tbl">
-          <thead><tr>
-            <th style="width:35px;">م</th>
-            <th>اسم المدرسة</th>
-            <th style="width:80px;">النوع</th>
-            <th style="width:170px;">اسم الموجه</th>
-            <th style="width:90px;">التخصص</th>
-            <th style="width:110px;">التليفون</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
+        <table style="width: 100%; border: none; border-collapse: collapse;">
+          <tbody>
+            <tr>
+              <td style="border: none; padding: 0;">
+                ${renderHeader(cfg, `كشف توزيع الموجهين — ${groupLabel}`, `${cfg.semester} ${cfg.academicYear}`)}
+                <div style="margin:6px 0; font-size:11px; color:#444; border:1px solid #ccc; padding:4px 10px; border-radius:3px; display:inline-block;">
+                  إجمالي المدارس: <strong>${items.length}</strong>
+                </div>
+                <table class="data-tbl">
+                  <thead><tr>
+                    <th style="width:35px;">م</th>
+                    <th>اسم المدرسة</th>
+                    <th style="width:80px;">النوع</th>
+                    <th style="width:170px;">اسم الموجه</th>
+                    <th style="width:90px;">التخصص</th>
+                    <th style="width:110px;">التليفون</th>
+                  </tr></thead>
+                  <tbody>${rows}</tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td style="border: none; padding: 0;">
+                <div class="sig-container">
+                  ${renderSignatures(cfg)}
+                </div>
+              </td>
+            </tr>
+          </tfoot>
         </table>
-        ${renderSignatures(cfg)}
       `;
     });
 
@@ -399,26 +431,42 @@ export default function ReportsPage() {
       </tr>`).join('');
 
     const page = `
-      ${renderHeader(cfg, 'كشف الموجهين غير المكلفين', 'المتاحون للاستعانة بهم في توزيع الامتحانات')}
-      <div style="margin:6px 0;display:flex;gap:16px;font-size:11px;border:1px solid #ccc;padding:6px 12px;border-radius:4px;background:#f9fbff;">
-        <span>إجمالي الموجهين النشطين: <strong>${extraData.totalSupervisors}</strong></span>
-        <span>المكلفون حالياً: <strong>${extraData.totalSupervisors - extraData.unassignedSupervisors.length}</strong></span>
-        <span style="color:#c00;font-weight:700;">غير المكلفين: <strong>${extraData.unassignedSupervisors.length}</strong></span>
-        ${filterSpec ? `<span>التخصص: <strong>${filterSpec}</strong></span>` : ''}
-      </div>
-      <table class="data-tbl">
-        <thead><tr>
-          <th style="width:35px;">م</th>
-          <th>اسم الموجه</th>
-          <th style="width:120px;">التخصص</th>
-          <th style="width:80px;">المرحلة</th>
-          <th style="width:100px;">الدرجة الوظيفية</th>
-          <th style="width:110px;">التليفون</th>
-          <th style="width:120px;">الرقم القومي</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
+      <table style="width: 100%; border: none; border-collapse: collapse;">
+        <tbody>
+          <tr>
+            <td style="border: none; padding: 0;">
+              ${renderHeader(cfg, 'كشف الموجهين غير المكلفين', 'المتاحون للاستعانة بهم في توزيع الامتحانات')}
+              <div style="margin:6px 0;display:flex;gap:16px;font-size:11px;border:1px solid #ccc;padding:6px 12px;border-radius:4px;background:#f9fbff;">
+                <span>إجمالي الموجهين النشطين: <strong>${extraData.totalSupervisors}</strong></span>
+                <span>المكلفون حالياً: <strong>${extraData.totalSupervisors - extraData.unassignedSupervisors.length}</strong></span>
+                <span style="color:#c00;font-weight:700;">غير المكلفين: <strong>${extraData.unassignedSupervisors.length}</strong></span>
+                ${filterSpec ? `<span>التخصص: <strong>${filterSpec}</strong></span>` : ''}
+              </div>
+              <table class="data-tbl">
+                <thead><tr>
+                  <th style="width:35px;">م</th>
+                  <th>اسم الموجه</th>
+                  <th style="width:120px;">التخصص</th>
+                  <th style="width:80px;">المرحلة</th>
+                  <th style="width:100px;">الدرجة الوظيفية</th>
+                  <th style="width:110px;">التليفون</th>
+                  <th style="width:120px;">الرقم القومي</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="border: none; padding: 0;">
+              <div class="sig-container">
+                ${renderSignatures(cfg)}
+              </div>
+            </td>
+          </tr>
+        </tfoot>
       </table>
-      ${renderGMSignature(cfg)}
     `;
     try {
       await generatePDF(wrapPages([page]), `كشف_الموجهين_غير_المكلفين_${today}.pdf`, setPdfProgress);
@@ -451,25 +499,41 @@ export default function ReportsPage() {
           <td>${s.address ?? '—'}</td>
         </tr>`).join('');
       return `
-        ${renderHeader(cfg, `كشف المدارس بدون موجه مقيم — ${stage}`, 'المدارس التي لم يُخصص لها موجه مقيم حتى الآن')}
-        <div style="margin:6px 0;display:flex;gap:16px;font-size:11px;border:1px solid #ccc;padding:6px 12px;border-radius:4px;background:#fff8f8;">
-          <span>المرحلة: <strong>${stage}</strong></span>
-          <span style="color:#c00;font-weight:700;">عدد المدارس: <strong>${list.length}</strong></span>
-          ${filterStage ? '' : `<span>الإجمالي الكلي: <strong>${extraData.schoolsWithoutSupervisor.length}</strong></span>`}
-        </div>
-        <table class="data-tbl">
-          <thead><tr>
-            <th style="width:35px;">م</th>
-            <th>اسم المدرسة</th>
-            <th style="width:80px;">الكود</th>
-            <th style="width:90px;">النوع</th>
-            <th style="width:100px;">التخصص</th>
-            <th style="width:55px;">العدد</th>
-            <th>العنوان</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
+        <table style="width: 100%; border: none; border-collapse: collapse;">
+          <tbody>
+            <tr>
+              <td style="border: none; padding: 0;">
+                ${renderHeader(cfg, `كشف المدارس بدون موجه مقيم — ${stage}`, 'المدارس التي لم يُخصص لها موجه مقيم حتى الآن')}
+                <div style="margin:6px 0;display:flex;gap:16px;font-size:11px;border:1px solid #ccc;padding:6px 12px;border-radius:4px;background:#fff8f8;">
+                  <span>المرحلة: <strong>${stage}</strong></span>
+                  <span style="color:#c00;font-weight:700;">عدد المدارس: <strong>${list.length}</strong></span>
+                  ${filterStage ? '' : `<span>الإجمالي الكلي: <strong>${extraData.schoolsWithoutSupervisor.length}</strong></span>`}
+                </div>
+                <table class="data-tbl">
+                  <thead><tr>
+                    <th style="width:35px;">م</th>
+                    <th>اسم المدرسة</th>
+                    <th style="width:80px;">الكود</th>
+                    <th style="width:90px;">النوع</th>
+                    <th style="width:100px;">التخصص</th>
+                    <th style="width:55px;">العدد</th>
+                    <th>العنوان</th>
+                  </tr></thead>
+                  <tbody>${rows}</tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td style="border: none; padding: 0;">
+                <div class="sig-container">
+                  ${renderSignatures(cfg)}
+                </div>
+              </td>
+            </tr>
+          </tfoot>
         </table>
-        ${renderGMSignature(cfg)}
       `;
     });
     try {

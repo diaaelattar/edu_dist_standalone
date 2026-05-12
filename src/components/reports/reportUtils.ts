@@ -217,20 +217,13 @@ export const BASE_STYLES = `
   .notes-box p { margin-bottom: 3px; }
 
   @media print {
-    @page { size: A4 portrait; margin: 8mm 8mm 25mm 8mm; }
+    @page { size: A4 portrait; margin: 10mm 10mm 12mm 10mm; }
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .footer-fixed { position: fixed; bottom: 0; left: 0; right: 0; display: block !important; }
   }
   
-  .footer-fixed {
-    display: none;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    padding: 0 16mm 8mm;
-    background: #fff;
-    z-index: 9999;
-  }
-  .footer-space { height: 100px; }
+  tfoot { display: table-footer-group; }
+  .sig-container { margin-top: 15px; }
+
   
   .page-a5 {
     width: 148mm;
