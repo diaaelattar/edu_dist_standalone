@@ -76,24 +76,24 @@ export const BASE_STYLES = `
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 3px double #1a3a6e;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
+    border-bottom: 2px double #1a3a6e;
+    padding-bottom: 5px;
+    margin-bottom: 6px;
   }
   .rpt-title-box {
     text-align: center;
-    border: 2px solid #1a3a6e;
-    padding: 7px 16px;
-    border-radius: 5px;
+    border: 1.5px solid #1a3a6e;
+    padding: 4px 10px;
+    border-radius: 4px;
     background: linear-gradient(180deg, #eef3fb 0%, #fff 100%);
     flex: 1;
-    margin: 0 14px;
+    margin: 0 10px;
   }
-  .rpt-title { font-size: 17px; font-weight: 900; color: #1a3a6e; }
-  .rpt-subtitle { font-size: 11px; color: #555; margin-top: 3px; }
+  .rpt-title { font-size: 14px; font-weight: 900; color: #1a3a6e; }
+  .rpt-subtitle { font-size: 10px; color: #555; margin-top: 2px; }
   .rpt-logo {
-    width: 72px; height: 72px;
-    border: 2px solid #1a3a6e;
+    width: 52px; height: 52px;
+    border: 1.5px solid #1a3a6e;
     display: flex; align-items: center; justify-content: center;
     background: #f5f7fb;
   }
@@ -141,7 +141,8 @@ export const BASE_STYLES = `
     font-size: 11.5px;
   }
   .data-tbl tbody tr:nth-child(even) { background: #f4f7fc; }
-  .data-tbl tbody tr { page-break-inside: avoid; }
+  .data-tbl thead { display: table-header-group; }
+  .data-tbl tr { page-break-inside: avoid; }
 
   /* ─── Stage badges ─── */
   .badge { padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; }
@@ -166,15 +167,15 @@ export const BASE_STYLES = `
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-top: 24px;
+    margin-top: 12px;
   }
-  .sig-block { text-align: center; min-width: 160px; }
-  .sig-name { font-weight: 900; font-size: 13px; margin-top: 3px; }
+  .sig-block { text-align: center; min-width: 130px; }
+  .sig-name { font-weight: 900; font-size: 12px; margin-top: 2px; }
   .sig-title { font-weight: 700; font-size: 11px; }
   .sig-line {
-    margin-top: 28px;
+    margin-top: 22px;
     border-top: 1px solid #000;
-    padding-top: 4px;
+    padding-top: 3px;
     font-size: 10px;
     color: #555;
   }
@@ -216,8 +217,36 @@ export const BASE_STYLES = `
   .notes-box p { margin-bottom: 3px; }
 
   @media print {
-    @page { size: A4 portrait; margin: 8mm; }
+    @page { size: A4 portrait; margin: 8mm 8mm 25mm 8mm; }
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .footer-fixed { position: fixed; bottom: 0; left: 0; right: 0; display: block !important; }
+  }
+  
+  .footer-fixed {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 0 16mm 8mm;
+    background: #fff;
+    z-index: 9999;
+  }
+  .footer-space { height: 100px; }
+  
+  .page-a5 {
+    width: 148mm;
+    min-height: 210mm;
+    padding: 8mm 10mm 8mm;
+    margin: 0 auto;
+    position: relative;
+    background: #fff;
+  }
+  .page-a5-landscape {
+    width: 210mm;
+    min-height: 148mm;
+    padding: 6mm 10mm 6mm;
+    margin: 0 auto;
+    position: relative;
+    background: #fff;
   }
 `;
 
@@ -287,18 +316,19 @@ export function renderSignatures(cfg: ReportSettings): string {
   return `
     <div class="sig-row">
       <div class="sig-block">
-        <div class="sig-title">يعتمد،، الموجه الأول للمادة</div>
-        <div class="sig-line">التوقيع</div>
+        <div class="sig-title">مديري المراحل</div>
+        <div class="sig-line"></div>
       </div>
       <div class="sig-block">
         <div class="sig-title">${cfg.deputy_title}</div>
         <div class="sig-name">${cfg.deputy_name}</div>
-        <div class="sig-line">التوقيع</div>
+        <div class="sig-line"></div>
       </div>
       <div class="sig-block">
+        <div class="sig-title" style="font-weight:900;">يعتمد،،</div>
         <div class="sig-title">${cfg.gm_title}</div>
         <div class="sig-name">${cfg.gm_name}</div>
-        <div class="sig-line">التوقيع</div>
+        <div class="sig-line"></div>
       </div>
     </div>
   `;
@@ -326,21 +356,25 @@ export function renderGMSignature(cfg: ReportSettings): string {
 
 // ─── Official instructions ────────────────────────────────────────────────
 export const INSTRUCTIONS = [
-  'التزام الموجه المقيم بتواجده مع مدير المدرسة لاستلام مظاريف الأسئلة من المطبعة السرية وتأمين سرية الامتحانات.',
-  'الالتزام بالحضور قبل فتح مظاريف الأسئلة بوقت كافٍ مع مدير المدرسة ومسئوليته حتى التسليم إلى الكنترول.',
-  'التواجد بالمدرسة قبل بدء الامتحان بوقت كافٍ للتأكد من استيفاء جميع الإجراءات المتصلة بالامتحان.',
-  'الالتزام بجدول الامتحان كما هو وارد من الإدارة التعليمية وعدم مخالفته مطلقاً.',
-  'عمل تقرير يومي عن سير الامتحان مرفق به نسخة من أسئلة المواد التي تم تأدية الامتحان فيها في ذات اليوم.',
-  'عمل تقرير شامل في نهاية الامتحانات عن سير الامتحان بالمدرسة وتسليمه في آخر يوم من أيام الامتحان.',
-  'الالتزام بخروج الطلاب آخر الوقت وعدم مغادرة المدرسة إلا بعد خروج آخر طالب.',
-  'التواصل مع غرفة العمليات بالإدارة على الفور في حال حدوث مخالفة أو أي عارض ذو شأن أثناء الامتحان.',
+  'الالتزام بالحضور المبكر إلى مقر اللجنة ، وقبل موعد فتح مظاريف الأسئلة بوقت كافٍ للتأكد من استيفاء جميع الإجراءات المتصلة بالامتحان.',
+  'متابعة فتح المظاريف مع مدير المدرسة ومراجعة سلامتها بالكامل قبل الفتح.',
+  'الإشراف على عمليات توزيع الأظرف الفرعية لأسئلة الامتحان داخل اللجان الفرعية قبل بداية الاختبار بمدة لا تتجاوز خمس دقائق (5 دقائق).',
+  'الالتزام التام بمواعيد جدول الامتحان كما هو وارد من الإدارة التعليمية وعدم مخالفته مطلقاً.',
+  'التأكد من اتخاذ إجراءات التفتيش الدقيق للطلاب، وجمع الهواتف المحمولة أو أي أجهزة أو وسائل أخرى لمنع الغش.',
+  'التأكد من سحب الهواتف المحمولة من السادة الملاحظين والمراقبين؛ وفي حالة ضبط ملاحظ يستخدم الهاتف المحمول أثناء انعقاد الاختبار، يتم تحرير محضر إثبات حالة فوراً وإثبات ذلك في التقرير اليومي.',
+  'التأكد من غلق أبواب اللجان خلال زمن الاختبار، ومنع دخول أو خروج أي شخص غير مسموح له لضمان هدوء وانضباط اللجان.',
+  'التواصل الفوري مع غرفة العمليات بالإدارة التعليمية في حال حدوث أي مخالفة أو عارض ذي شأن أثناء سير الامتحان.',
+  'التأكد من بقاء الطلاب حتى نهاية الزمن المحدد للاختبار وعدم مغادرة المدرسة إلا بعد خروج آخر طالب، ومتابعة ذلك بدقة مع مدير المدرسة ومراقبي الأدوار.',
+  'إعداد تقرير يومي مفصل عن سير الامتحان.'
 ];
 
 // ─── Core: generate PDF using html2pdf.js ────────────────────────────────
 export async function generatePDF(
   bodyHtml: string,
   filename: string,
-  onProgress?: (msg: string) => void
+  onProgress?: (msg: string) => void,
+  pageSize: string = 'A4 portrait',
+  footerHtml?: string
 ): Promise<void> {
   onProgress?.('تجهيز الملف للطباعة...');
   
@@ -373,15 +407,16 @@ export async function generatePDF(
         <title>${filename}</title>
         <style>
           ${BASE_STYLES}
-          @page { size: A4 portrait; margin: 10mm; }
+          @page { size: ${pageSize}; margin: 10mm; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         </style>
       </head>
       <body>
         ${bodyHtml}
+        ${footerHtml ? `<div class="footer-fixed">${footerHtml}</div>` : ''}
       </body>
-      </html>
-    `);
+    </html>
+  `);
     doc.close();
 
     // Wait for content to load, then trigger print
@@ -409,6 +444,6 @@ export function openPrintWindow(title: string, html: string) {
 }
 
 // ─── Wraps one or more page divs ─────────────────────────────────────────
-export function wrapPages(pages: string[]): string {
-  return pages.map(p => `<div class="page">${p}</div>`).join('\n');
+export function wrapPages(pages: string[], pageClass: string = 'page'): string {
+  return pages.map(p => `<div class="${pageClass}">${p}</div>`).join('\n');
 }

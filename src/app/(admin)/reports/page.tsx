@@ -135,88 +135,129 @@ export default function ReportsPage() {
       const specialty = r.supervisor?.specialty ?? '';
       const phone = r.supervisor?.phone ?? '';
       return `
-        ${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', `لمتابعة امتحانات النقل | ${cfg.semester} ${cfg.academicYear}`)}
-        ${renderOfficials(cfg)}
-        <div class="sup-card">
-          <p style="font-weight:700; margin-bottom:6px;">
-            السيد / <span style="border-bottom:1px dashed #000; padding:0 8px;">${supName}</span>
-            &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000; padding:0 8px;">${specialty}</span>
-            ${phone ? `&nbsp;&nbsp; تليفون: <span dir="ltr" style="font-weight:700;">${phone}</span>` : ''}
+        ${renderHeader(cfg, 'أمر تكليف موجه مقيم')}
+        <div class="sup-card" style="padding: 6px 10px; margin-bottom: 4px;">
+          <p style="font-weight:700; margin-bottom:5px; font-size:12px;">
+            السيد / <span style="border-bottom:1px dashed #000; padding:0 6px; font-weight:800; font-size: 13px;">${supName}</span>
+            &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000; padding:0 6px;">${specialty}</span>
           </p>
-          <p style="text-align:center; font-weight:700; margin:8px 0;">تم تكليفكم لمتابعة امتحانات ${cfg.semester} ${cfg.academicYear} لصفوف النقل بمدرسة:</p>
-          <p style="text-align:center;"><span class="school-box">${schoolName}</span></p>
-          <p style="text-align:center; font-size:10px; text-decoration:underline; margin-top:4px;">وحسب مواعيد جدول امتحانات الصفوف الموجودة بالمدرسة</p>
+          <p style="font-weight:600; line-height: 1.4; margin-bottom: 5px; font-size:11.5px;">في إطار الاستعدادات لعقد امتحانات ${cfg.semester}، فقد تقرر تكليفكم بمتابعة لجان سير امتحانات النقل بمدرسة:</p>
+          <p style="text-align:center; margin-bottom: 3px;"><span class="school-box" style="font-size:13px; padding: 4px 20px;">${schoolName}</span></p>
+          <p style="text-align:center; font-weight:800; font-size:11px; color:#1a3a6e;">( طبقاً لجدول الامتحانات المعلن )</p>
         </div>
-        <p style="font-weight:700; margin:6px 0;">ويراعى الالتزام بما يلى:</p>
-        <ol class="instructions" dir="rtl">${INSTRUCTIONS.map(i => `<li>${i}</li>`).join('')}</ol>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
-          <div style="font-size:11px;">
-            <p style="font-weight:700; text-decoration:underline; margin-bottom:5px;">توقيع الموجه</p>
-            <p>الاسم: .................................</p>
-            <p>الوظيفة: ................................</p>
-            <p>رقم التليفون: ...........................</p>
-            <p>التوقيع: .................................</p>
-          </div>
-          ${renderManagersTable(cfg)}
+        <p style="font-weight:800; font-size: 11px; margin:5px 0 3px; color:#1a3a6e; border-right: 3px solid #1a3a6e; padding-right: 5px;">تعليمات ومهام الموجه المقيم لمتابعة امتحانات النقل</p>
+        <p style="font-weight:700; margin-bottom:3px; font-size: 10px;">بناءً على التكليف الصادر لمتابعة سير امتحانات النقل، يُرجى الالتزام التام بالمهام والتعليمات الآتية:</p>
+        <ol class="instructions" dir="rtl" style="font-size: 9.5px; margin: 0; padding-right: 16px; column-count: 2; column-gap: 14px; line-height: 1.4;">${INSTRUCTIONS.map(i => `<li style="margin-bottom:1px;">${i}</li>`).join('')}</ol>
+
+        <div style="margin-top: 10px;">
+          ${renderSignatures(cfg)}
         </div>
-        ${renderSignatures(cfg)}
       `;
     });
     try {
-      await generatePDF(wrapPages(pages), `خطابات_تكليف_${run?.run_name ?? 'التوزيع'}.pdf`, setPdfProgress);
+      await generatePDF(wrapPages(pages, 'page-a5-landscape'), `خطابات_تكليف_${run?.run_name ?? 'التوزيع'}.pdf`, setPdfProgress, 'A5 landscape');
       toast.success('تم إنشاء ملف PDF بنجاح');
     } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
   };
 
-  // ═══════ Guidance Sheets (per specialty) ═══════
+  // ═══════ Guidance Sheets Summary (Assigned & Unassigned) ═══════
   const printGuidanceSheets = async () => {
-    if (!cfg || results.length === 0) return toast.error('لا توجد نتائج');
-    
-    // Apply filters
-    const targetResults = results.filter(r => {
-      if (filterSpec && r.supervisor?.specialty !== filterSpec) return false;
-      if (filterStage && r.school?.stage !== filterStage) return false;
-      return true;
-    });
+    if (!cfg || (results.length === 0 && (extraData?.unassignedSupervisors ?? []).length === 0)) {
+      return toast.error('لا توجد بيانات للطباعة');
+    }
 
-    if (targetResults.length === 0) return toast.error('لا توجد نتائج تطابق هذه التصفية');
+    const assignedSpecs = Array.from(new Set(results.map(r => r.supervisor?.specialty).filter(Boolean)));
+    const unassignedSpecs = Array.from(new Set((extraData?.unassignedSupervisors ?? []).map((s: any) => s.specialty).filter(Boolean)));
+    const allSpecs = Array.from(new Set([...assignedSpecs, ...unassignedSpecs])).sort((a, b) => (a as string).localeCompare(b as string, 'ar'));
 
-    const groups: Record<string, DistributionResult[]> = {};
-    targetResults.forEach(r => {
-      const spec = r.supervisor?.specialty ?? 'غير محدد';
-      if (!groups[spec]) groups[spec] = [];
-      groups[spec].push(r);
-    });
-    const pages = Object.entries(groups)
-      .sort((a, b) => a[0].localeCompare(b[0], 'ar'))
-      .map(([spec, items]) => {
-        items.sort((a, b) => (a.school?.school_name ?? '').localeCompare(b.school?.school_name ?? '', 'ar'));
-        const rows = items.map((r, i) => `
-          <tr>
-            <td>${i + 1}</td>
-            <td style="text-align:right; font-weight:600;">${r.school?.school_name ?? ''}</td>
-            <td style="font-size:10px; color:#555;">${r.school?.school_type ?? ''}</td>
-            <td>${r.supervisor?.name ?? ''}</td>
-            <td dir="ltr">${r.supervisor?.phone ?? '—'}</td>
-          </tr>`);
-        return `
-          ${renderHeader(cfg, `كشف الموجهين — توجيه ${spec}`, `${cfg.semester} ${cfg.academicYear}`)}
+    const targetSpecs = filterSpec ? allSpecs.filter(s => s === filterSpec) : allSpecs;
+
+    if (targetSpecs.length === 0) return toast.error('لا توجد نتائج تطابق التخصص المختار');
+
+    const footerHtml = renderSignatures(cfg);
+
+    const pages = targetSpecs.map(spec => {
+      const assigned = results.filter(r => 
+        r.supervisor?.specialty === spec && 
+        (!filterStage || r.school?.stage === filterStage)
+      );
+
+      const unassigned = (extraData?.unassignedSupervisors ?? []).filter((s: any) => 
+        s.specialty === spec
+      );
+
+      if (assigned.length === 0 && unassigned.length === 0) return null;
+
+      assigned.sort((a: any, b: any) => (a.school?.school_name ?? '').localeCompare(b.school?.school_name ?? '', 'ar'));
+      unassigned.sort((a: any, b: any) => (a.name ?? '').localeCompare(b.name ?? '', 'ar'));
+
+      const assignedRows = assigned.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td style="text-align:right; font-weight:700;">${r.school?.school_name ?? ''}</td>
+          <td style="font-size:10px; color:#555;">${r.school?.school_type ?? ''}</td>
+          <td style="font-weight:600;">${r.supervisor?.name ?? ''}</td>
+          <td dir="ltr" style="font-size:11px;">${r.supervisor?.phone ?? '—'}</td>
+        </tr>`).join('');
+
+      const unassignedRows = unassigned.map((s: any, i: number) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td style="text-align:right; font-weight:700;">${s.name}</td>
+          <td style="color:#c00; font-weight:600;">غير مكلف (متاح)</td>
+          <td dir="ltr" style="font-size:11px;">${s.phone ?? '—'}</td>
+        </tr>`).join('');
+
+      return `
+        ${renderHeader(cfg, 'توزيع تكليف السادة الموجهين لمتابعة أعمال امتحان النقل', `آخر العام الدراسي 2025 / 2026`)}
+        
+        <div style="margin: 12px 0 8px; font-weight: 800; font-size: 15px; border-bottom: 2px solid #1a3a6e; padding-bottom: 5px; color: #1a3a6e;">
+          السيد موجه أول / توجيه ${spec}
+        </div>
+        
+        <p style="margin: 10px 0; font-weight: 700; line-height: 1.6; font-size: 13.5px;">
+          مرفق كشف تكليفات السادة أعضاء القسم التابع لكم لمتابعة أعمال امتحانات : آخر العام الدراسي 2025 / 2026؛
+        </p>
+        <p style="margin: 5px 0; font-weight: 700; font-size: 13px; color: #444;">
+          الرجا موافاتنا بكل من لم يرد بهذا الكشف من العاملين بالقسم لديكم.
+        </p>
+        <p style="margin: 8px 0 15px; font-weight: 800; text-decoration: underline; font-size: 14px; text-align: center;">
+          هذا للعلم واتخاذ اللازم
+        </p>
+
+        <h4 style="margin: 15px 0 6px; font-size: 13px; color: #1a3a6e; border-right: 4px solid #1a3a6e; padding-right: 8px;">أولاً: السادة الموجهون المكلفون:</h4>
+        <table class="data-tbl">
+          <thead><tr>
+            <th style="width:35px;">م</th>
+            <th>اسم المدرسة</th>
+            <th style="width:80px;">النوع</th>
+            <th style="width:200px;">اسم الموجه</th>
+            <th style="width:110px;">التليفون</th>
+          </tr></thead>
+          <tbody>
+            ${assignedRows || '<tr><td colspan="5" style="text-align:center; padding:15px; color:#666;">لا يوجد موجهون مكلفون حالياً في هذا التخصص</td></tr>'}
+          </tbody>
+        </table>
+
+        ${unassigned.length > 0 ? `
+          <h4 style="margin: 20px 0 6px; font-size: 13px; color: #c00; border-right: 4px solid #c00; padding-right: 8px;">ثانياً: السادة الموجهون غير المكلفين (المتاحون):</h4>
           <table class="data-tbl">
             <thead><tr>
               <th style="width:35px;">م</th>
-              <th>اسم المدرسة</th>
-              <th style="width:80px;">النوع</th>
-              <th style="width:180px;">اسم الموجه</th>
+              <th>اسم الموجه</th>
+              <th style="width:120px;">الحالة</th>
               <th style="width:110px;">التليفون</th>
             </tr></thead>
-            <tbody>${rows.join('')}</tbody>
+            <tbody>${unassignedRows}</tbody>
           </table>
-          ${renderGMSignature(cfg)}
-        `;
-      });
+        ` : ''}
+        <div class="footer-space"></div>
+      `;
+    }).filter(Boolean) as string[];
+
     try {
-      await generatePDF(wrapPages(pages), `كشوف_التوجيه_${run?.run_name ?? ''}.pdf`, setPdfProgress);
-      toast.success('تم إنشاء PDF بنجاح');
+      await generatePDF(wrapPages(pages), `كشوف_التوجيهات_${cfg.semester}.pdf`, setPdfProgress, 'A4 portrait', footerHtml);
+      toast.success('تم إنشاء الكشوف بنجاح');
     } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
   };
 
@@ -288,7 +329,7 @@ export default function ReportsPage() {
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
-        ${renderGMSignature(cfg)}
+        ${renderSignatures(cfg)}
       `;
     });
 
@@ -303,27 +344,26 @@ export default function ReportsPage() {
   const printBlankLetter = async () => {
     if (!cfg) return toast.error('لم يتم تحميل الإعدادات');
     const page = `
-      ${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', `لمتابعة امتحانات النقل | ${cfg.semester} ${cfg.academicYear}`)}
-      ${renderOfficials(cfg)}
-      <div class="sup-card">
-        <p style="font-weight:700; margin-bottom:6px;">السيد / <span style="border-bottom:1px dashed #000; padding:0 40px;"></span> &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000; padding:0 40px;"></span></p>
-        <p style="text-align:center; font-weight:700; margin:8px 0;">تم تكليفكم لمتابعة امتحانات ${cfg.semester} ${cfg.academicYear} لصفوف النقل بمدرسة:</p>
-        <p style="text-align:center;"><span class="school-box" style="min-width:200px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
-      </div>
-      <p style="font-weight:700; margin:6px 0;">ويراعى الالتزام بما يلى:</p>
-      <ol class="instructions">${INSTRUCTIONS.map(i => `<li>${i}</li>`).join('')}</ol>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
-        <div style="font-size:11px;">
-          <p style="font-weight:700; text-decoration:underline;">توقيع الموجه</p>
-          <p>الاسم: .................................</p><p>الوظيفة: ................................</p>
-          <p>رقم التليفون: ...........................</p><p>التوقيع: .................................</p>
+        ${renderHeader(cfg, 'أمر تكليف موجه مقيم')}
+        <div class="sup-card" style="padding: 6px 10px; margin-bottom: 4px;">
+          <p style="font-weight:700; margin-bottom:5px; font-size:12px;">
+            السيد / <span style="border-bottom:1px dashed #000; padding:0 6px; font-weight:800; font-size: 13px;">...........................................</span>
+            &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000; padding:0 6px;">..........................</span>
+          </p>
+          <p style="font-weight:600; line-height: 1.4; margin-bottom: 5px; font-size:11.5px;">في إطار الاستعدادات لعقد امتحانات ${cfg.semester}، فقد تقرر تكليفكم بمتابعة لجان سير امتحانات النقل بمدرسة:</p>
+          <p style="text-align:center; margin-bottom: 3px;"><span class="school-box" style="font-size:13px; padding: 4px 20px;">...........................................</span></p>
+          <p style="text-align:center; font-weight:800; font-size:11px; color:#1a3a6e;">( طبقاً لجدول الامتحانات المعلن )</p>
         </div>
-        ${renderManagersTable(cfg)}
-      </div>
-      ${renderSignatures(cfg)}
-    `;
+        <p style="font-weight:800; font-size: 11px; margin:5px 0 3px; color:#1a3a6e; border-right: 3px solid #1a3a6e; padding-right: 5px;">تعليمات ومهام الموجه المقيم لمتابعة امتحانات النقل</p>
+        <p style="font-weight:700; margin-bottom:3px; font-size: 10px;">بناءً على التكليف الصادر لمتابعة سير امتحانات النقل، يُرجى الالتزام التام بالمهام والتعليمات الآتية:</p>
+        <ol class="instructions" dir="rtl" style="font-size: 9.5px; margin: 0; padding-right: 16px; column-count: 2; column-gap: 14px; line-height: 1.4;">${INSTRUCTIONS.map(i => `<li style="margin-bottom:1px;">${i}</li>`).join('')}</ol>
+
+        <div style="margin-top: 10px;">
+          ${renderSignatures(cfg)}
+        </div>
+      `;
     try {
-      await generatePDF(wrapPages([page]), 'خطاب_تكليف_فارغ.pdf', setPdfProgress);
+      await generatePDF(wrapPages([page], 'page-a5-landscape'), 'خطاب_تكليف_فارغ.pdf', setPdfProgress, 'A5 landscape');
       toast.success('تم إنشاء PDF بنجاح');
     } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
   };
@@ -443,34 +483,26 @@ export default function ReportsPage() {
     const items = unassigned;
     if (items.length === 0) return toast.error('لا يوجد موجهون لطباعة خطاباتهم');
     const pages = items.map((s: any) => `
-      ${renderHeader(cfg, 'خطاب تكليف الموجه المقيم', `لمتابعة امتحانات النقل | ${cfg.semester} ${cfg.academicYear}`)}
-      ${renderOfficials(cfg)}
-      <div class="sup-card">
-        <p style="font-weight:700;margin-bottom:6px;">
-          السيد / <span style="border-bottom:1px dashed #000;padding:0 8px;">${s.name}</span>
-          &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000;padding:0 8px;">${s.specialty}</span>
-          ${s.phone ? `&nbsp;&nbsp; تليفون: <span dir="ltr" style="font-weight:700;">${s.phone}</span>` : ''}
-        </p>
-        <p style="text-align:center;font-weight:700;margin:8px 0;">تم تكليفكم لمتابعة امتحانات ${cfg.semester} ${cfg.academicYear} لصفوف النقل بمدرسة:</p>
-        <p style="text-align:center;"><span class="school-box" style="min-width:220px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
-        <p style="text-align:center;font-size:10px;text-decoration:underline;margin-top:4px;">وحسب مواعيد جدول امتحانات الصفوف الموجودة بالمدرسة</p>
-      </div>
-      <p style="font-weight:700;margin:6px 0;">ويراعى الالتزام بما يلى:</p>
-      <ol class="instructions" dir="rtl">${INSTRUCTIONS.map(i => `<li>${i}</li>`).join('')}</ol>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
-        <div style="font-size:11px;">
-          <p style="font-weight:700;text-decoration:underline;margin-bottom:5px;">توقيع الموجه</p>
-          <p>الاسم: .................................</p>
-          <p>الوظيفة: ................................</p>
-          <p>رقم التليفون: .............................</p>
-          <p>التوقيع: .................................</p>
+        ${renderHeader(cfg, 'أمر تكليف موجه مقيم')}
+        <div class="sup-card" style="padding: 6px 10px; margin-bottom: 4px;">
+          <p style="font-weight:700; margin-bottom:5px; font-size:12px;">
+            السيد / <span style="border-bottom:1px dashed #000; padding:0 6px; font-weight:800; font-size: 13px;">${s.name}</span>
+            &nbsp;&nbsp; توجيه: <span style="border-bottom:1px dashed #000; padding:0 6px;">${s.specialty}</span>
+          </p>
+          <p style="font-weight:600; line-height: 1.4; margin-bottom: 5px; font-size:11.5px;">في إطار الاستعدادات لعقد امتحانات ${cfg.semester}، فقد تقرر تكليفكم بمتابعة لجان سير امتحانات النقل بمدرسة:</p>
+          <p style="text-align:center; margin-bottom: 3px;"><span class="school-box" style="font-size:13px; padding: 4px 20px;">...........................................</span></p>
+          <p style="text-align:center; font-weight:800; font-size:11px; color:#1a3a6e;">( طبقاً لجدول الامتحانات المعلن )</p>
         </div>
-        ${renderManagersTable(cfg)}
-      </div>
-      ${renderSignatures(cfg)}
-    `);
+        <p style="font-weight:800; font-size: 11px; margin:5px 0 3px; color:#1a3a6e; border-right: 3px solid #1a3a6e; padding-right: 5px;">تعليمات ومهام الموجه المقيم لمتابعة امتحانات النقل</p>
+        <p style="font-weight:700; margin-bottom:3px; font-size: 10px;">بناءً على التكليف الصادر لمتابعة سير امتحانات النقل، يُرجى الالتزام التام بالمهام والتعليمات الآتية:</p>
+        <ol class="instructions" dir="rtl" style="font-size: 9.5px; margin: 0; padding-right: 16px; column-count: 2; column-gap: 14px; line-height: 1.4;">${INSTRUCTIONS.map(i => `<li style="margin-bottom:1px;">${i}</li>`).join('')}</ol>
+
+        <div style="margin-top: 10px;">
+          ${renderSignatures(cfg)}
+        </div>
+      `);
     try {
-      await generatePDF(wrapPages(pages), `خطابات_تكليف_الموجهين_المتاحين.pdf`, setPdfProgress);
+      await generatePDF(wrapPages(pages, 'page-a5-landscape'), `خطابات_تكليف_المتاحين.pdf`, setPdfProgress, 'A5 landscape');
       toast.success('تم إنشاء الخطابات بنجاح');
     } catch { toast.error('خطأ في PDF'); setPdfProgress(''); }
   };
