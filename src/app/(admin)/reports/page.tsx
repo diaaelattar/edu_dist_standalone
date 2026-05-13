@@ -371,6 +371,70 @@ export default function ReportsPage() {
     } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
   };
 
+  // ═══════ Comprehensive Sheet ═══════
+  const printComprehensiveReport = async () => {
+    if (!cfg || results.length === 0) return toast.error('لا توجد نتائج');
+
+    // Sort all results by Stage, then School Name
+    const allItems = [...results].sort((a, b) => {
+      const stageA = a.school?.stage ?? '';
+      const stageB = b.school?.stage ?? '';
+      if (stageA !== stageB) return stageA.localeCompare(stageB, 'ar');
+      return (a.school?.school_name ?? '').localeCompare(b.school?.school_name ?? '', 'ar');
+    });
+
+    const rows = allItems.map((r, i) => `
+      <tr>
+        <td style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif;">${i + 1}</td>
+        <td style="text-align:right; font-weight:600; font-size:15px; font-family:'Calibri', 'Cairo', sans-serif;">${r.school?.school_name ?? ''}</td>
+        <td style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif;">${r.school?.stage ?? ''}</td>
+        <td style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif;">${r.supervisor?.name ?? ''}</td>
+        <td style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif;">${r.supervisor?.specialty ?? ''}</td>
+        <td dir="ltr" style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif;">${r.supervisor?.phone ?? '—'}</td>
+      </tr>`).join('');
+
+    const pageHtml = `
+      <table style="width: 100%; border: none; border-collapse: collapse;">
+        <tbody>
+          <tr>
+            <td style="border: none; padding: 0;">
+              ${renderHeader(cfg, 'كشف التوزيع الشامل لجميع اللجان', `${cfg.semester} ${cfg.academicYear}`)}
+              <div style="margin:6px 0; font-size:15px; font-family:'Calibri', 'Cairo', sans-serif; color:#444; border:1px solid #ccc; padding:4px 10px; border-radius:3px; display:inline-block;">
+                إجمالي المدارس الموزعة: <strong>${allItems.length}</strong>
+              </div>
+              <table class="data-tbl" style="font-family:'Calibri', 'Cairo', sans-serif;">
+                <thead><tr>
+                  <th style="width:35px; font-size:15px;">م</th>
+                  <th style="font-size:15px;">المدرسة</th>
+                  <th style="width:100px; font-size:15px;">المرحلة</th>
+                  <th style="width:200px; font-size:15px;">الموجه المقيم</th>
+                  <th style="width:120px; font-size:15px;">التوجيه</th>
+                  <th style="width:130px; font-size:15px;">رقم التليفون</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="border: none; padding: 0;">
+              <div class="sig-container" style="font-family:'Calibri', 'Cairo', sans-serif;">
+                ${renderSignatures(cfg)}
+              </div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    `;
+
+    try {
+      await generatePDF(wrapPages([pageHtml]), 'كشف_التوزيع_الشامل.pdf', setPdfProgress);
+      toast.success('تم إنشاء الكشف الشامل بنجاح');
+    } catch { toast.error('خطأ في إنشاء PDF'); setPdfProgress(''); }
+  };
+
+
 
   // ═══════ Blank Letter ═══════
   const printBlankLetter = async () => {
@@ -720,11 +784,14 @@ export default function ReportsPage() {
 
                     <hr style={{ border: 'none', borderTop: '1px dashed rgba(255,255,255,0.1)', margin: '12px 0' }} />
 
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button className="btn-primary" onClick={printStageSheets} disabled={!!pdfProgress} style={{ flex: 1, padding: '8px', fontSize: 12, background: 'linear-gradient(135deg,#60a5fa,#3b82f6)' }}>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button className="btn-primary" onClick={printStageSheets} disabled={!!pdfProgress} style={{ flex: 1, minWidth: '100px', padding: '8px', fontSize: 12, background: 'linear-gradient(135deg,#60a5fa,#3b82f6)' }}>
                         <Layers size={14} /> كشوف المراحل
                       </button>
-                      <button className="btn-secondary" onClick={printBlankLetter} disabled={!!pdfProgress} style={{ flex: 1, padding: '8px', fontSize: 12 }}>
+                      <button className="btn-primary" onClick={printComprehensiveReport} disabled={!!pdfProgress} style={{ flex: 1, minWidth: '100px', padding: '8px', fontSize: 12, background: 'linear-gradient(135deg,#34d399,#10b981)' }}>
+                        <FileText size={14} /> الكشف الشامل
+                      </button>
+                      <button className="btn-secondary" onClick={printBlankLetter} disabled={!!pdfProgress} style={{ flex: 1, minWidth: '100px', padding: '8px', fontSize: 12 }}>
                         <FileSpreadsheet size={14} /> خطاب فارغ
                       </button>
                     </div>
