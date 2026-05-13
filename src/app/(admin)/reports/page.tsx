@@ -393,6 +393,29 @@ export default function ReportsPage() {
         <td dir="ltr" style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif;">${r.supervisor?.phone ?? '—'}</td>
       </tr>`).join('');
 
+    let unassignedRows = '';
+    const noSupItems = extraData?.schoolsWithoutSupervisor ?? [];
+    if (noSupItems.length > 0) {
+      // Sort unassigned schools by Stage, then School Name
+      const sortedNoSup = [...noSupItems].sort((a: any, b: any) => {
+        const stageA = a.stage ?? '';
+        const stageB = b.stage ?? '';
+        if (stageA !== stageB) return stageA.localeCompare(stageB, 'ar');
+        return (a.school_name ?? '').localeCompare(b.school_name ?? '', 'ar');
+      });
+
+      const startIndex = allItems.length + 1;
+      unassignedRows = sortedNoSup.map((s: any, i: number) => `
+        <tr style="background-color: rgba(239,68,68,0.05);">
+          <td style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif; color: #b91c1c;">${startIndex + i}</td>
+          <td style="text-align:right; font-weight:600; font-size:15px; font-family:'Calibri', 'Cairo', sans-serif; color: #b91c1c;">${s.school_name ?? ''}</td>
+          <td style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif; color: #b91c1c;">${s.stage ?? ''}</td>
+          <td style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif; color: #b91c1c; font-weight: 700;">بدون موجه مقيم</td>
+          <td style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif; color: #b91c1c;">—</td>
+          <td dir="ltr" style="font-size:15px; font-family:'Calibri', 'Cairo', sans-serif; color: #b91c1c;">—</td>
+        </tr>`).join('');
+    }
+
     const pageHtml = `
       <table style="width: 100%; border: none; border-collapse: collapse;">
         <tbody>
@@ -400,7 +423,8 @@ export default function ReportsPage() {
             <td style="border: none; padding: 0;">
               ${renderHeader(cfg, 'كشف التوزيع الشامل لجميع اللجان', `${cfg.semester} ${cfg.academicYear}`)}
               <div style="margin:6px 0; font-size:15px; font-family:'Calibri', 'Cairo', sans-serif; color:#444; border:1px solid #ccc; padding:4px 10px; border-radius:3px; display:inline-block;">
-                إجمالي المدارس الموزعة: <strong>${allItems.length}</strong>
+                إجمالي المدارس الموزعة: <strong>${allItems.length}</strong> 
+                ${noSupItems.length > 0 ? `| <span style="color: #b91c1c;">مدارس بدون موجه مقيم: <strong>${noSupItems.length}</strong></span>` : ''}
               </div>
               <table class="data-tbl" style="font-family:'Calibri', 'Cairo', sans-serif;">
                 <thead><tr>
@@ -411,7 +435,10 @@ export default function ReportsPage() {
                   <th style="width:80px; font-size:15px;">التوجيه</th>
                   <th style="width:100px; font-size:15px;">رقم التليفون</th>
                 </tr></thead>
-                <tbody>${rows}</tbody>
+                <tbody>
+                  ${rows}
+                  ${unassignedRows}
+                </tbody>
               </table>
             </td>
           </tr>
