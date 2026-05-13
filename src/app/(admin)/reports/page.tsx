@@ -404,12 +404,12 @@ export default function ReportsPage() {
               </div>
               <table class="data-tbl" style="font-family:'Calibri', 'Cairo', sans-serif;">
                 <thead><tr>
-                  <th style="width:35px; font-size:15px;">م</th>
-                  <th style="font-size:15px;">المدرسة</th>
-                  <th style="width:100px; font-size:15px;">المرحلة</th>
-                  <th style="width:200px; font-size:15px;">الموجه المقيم</th>
-                  <th style="width:120px; font-size:15px;">التوجيه</th>
-                  <th style="width:130px; font-size:15px;">رقم التليفون</th>
+                  <th style="width:30px; font-size:15px;">م</th>
+                  <th style="width:240px; font-size:15px;">المدرسة</th>
+                  <th style="width:70px; font-size:15px;">المرحلة</th>
+                  <th style="width:240px; font-size:15px;">الموجه المقيم</th>
+                  <th style="width:80px; font-size:15px;">التوجيه</th>
+                  <th style="width:100px; font-size:15px;">رقم التليفون</th>
                 </tr></thead>
                 <tbody>${rows}</tbody>
               </table>
